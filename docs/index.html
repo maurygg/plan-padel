@@ -482,6 +482,10 @@
     text-transform: uppercase; color: var(--muted); }
   .rep-actions { padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
   .rep-actions .btn { width: 100%; }
+  .linknota { margin-top: 10px; padding: 12px 13px; border-radius: 10px; background: var(--surface-2); }
+  .linknota p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+  .linknota p:last-child { margin-bottom: 0; }
+  .linknota b { color: var(--ink); }
   .rep-shared { margin: 12px 16px 0; padding: 12px 14px; border-radius: 12px;
     border: 1px solid var(--green); background: color-mix(in srgb, var(--sage) 22%, var(--surface));
     font-size: 13px; line-height: 1.5; color: var(--ink); }
@@ -1639,13 +1643,17 @@ function render() {
       ${READONLY ? `<div class="rep-shared">Este informe te lo compartió <b>Mauro</b>. Es solo de lectura: no se guarda nada en tu dispositivo ni se modifica nada.</div>` : ""}
       ${viewInforme()}
       <div class="rep-actions">
-        ${READONLY ? "" : `<button class="btn primary" onclick="copiarLink()">Copiar link para Martín</button>
-        ${PUBLICADO ? `<button class="btn" onclick="copiarLinkPublicado()">Copiar link corto (datos publicados)</button>` : ""}`}
+        ${READONLY ? "" : `<button class="btn primary" onclick="copiarLink()">Copiar link con lo de HOY</button>
+        ${PUBLICADO ? `<button class="btn" onclick="copiarLinkPublicado()">Copiar link fijo (última publicación)</button>` : ""}`}
         <button class="btn ${READONLY ? "primary" : ""}" onclick="imprimirInforme()">Imprimir / guardar PDF</button>
         <button class="btn" onclick="bajarInformeImagen()">Descargar como imagen</button>
         <button class="btn ghost" onclick="bajarInformeTexto()">${window.claude && window.claude.downloads ? "Descargar en texto" : "Copiar en texto"}</button>
         <p id="repmsg" class="small muted" style="margin:8px 0 0"></p>
-        ${READONLY ? "" : `<p class="small muted" style="margin-top:6px">El <b>link</b> es lo más cómodo: se lo pegás a Martín por WhatsApp, lo abre y ve este mismo informe — sin instalar nada y sin tocar sus datos.${enIframe() ? " El botón de imprimir no funciona acá adentro: para el PDF, abrí la app en una pestaña aparte." : ""}</p>`}
+        ${READONLY ? "" : `<div class="linknota">
+          <p><b>Link con lo de HOY</b> — lleva adentro todo lo que tenés anotado en este momento. Es largo, lo generás vos cuando querés y no depende de nadie. <b>Es el que conviene mandarle a Martín al cerrar cada semana.</b></p>
+          <p><b>Link fijo</b> — siempre la misma dirección, pero muestra lo último que se publicó, no lo que anotaste hoy. Sirve para dejárselo guardado a Martín de una vez.</p>
+          ${enIframe() ? `<p>El botón de imprimir no funciona acá adentro: para el PDF, abrí la app en una pestaña aparte.</p>` : ""}
+        </div>`}
       </div>`;
     return;
   }
