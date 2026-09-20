@@ -457,7 +457,7 @@
   /* ---------- Informe ---------- */
   body.reporting nav.bottom, body.reporting #timer { display: none !important; }
   body.reporting { padding-bottom: 0; }
-  .banner-cargar { margin: 0 0 16px; padding: 15px 15px 16px; border-radius: 14px;
+  .banner-cargar { margin: 14px 0 16px; padding: 15px 15px 16px; border-radius: 14px;
     border: 1px solid var(--green); background: linear-gradient(180deg, rgba(175,200,180,.26), rgba(175,200,180,.10)); }
   .banner-cargar p { margin: 0 0 12px; font-size: 13.5px; line-height: 1.55; color: var(--ink); }
   .banner-cargar .btn { width: 100%; }
@@ -1509,6 +1509,9 @@ function waUrl(text) { return "https://wa.me/?text=" + encodeURIComponent(text);
 /* ================= RENDER ================= */
 /* El banner grande solo en Plan: en el resto se come 200 px de los 812 de un
    celular, justo donde la app se usa parada en el gimnasio. */
+function dispositivoVacio() {
+  return !Object.keys(S.logs || {}).length && !Object.keys(S.weekDone || {}).length;
+}
 function tabTitulo() {
   if (S.tab === "progreso") return "Progreso";
   if (S.tab === "perfil") return "Perfil";
@@ -1583,6 +1586,13 @@ function render() {
       <span class="mini-t">${esc(tabTitulo())}</span>
       <span class="mini-s">Plan Prevención · Prof. Martín Ferreras</span>
     </header>`}
+    ${dispositivoVacio() && PUBLICADO ? `<div class="banner-cargar">
+      <p><b>Este dispositivo no tiene tu progreso.</b> Los registros se guardan en cada navegador,
+      así que acá arranca vacío. Hay un progreso publicado: cargalo y seguís desde donde ibas.</p>
+      <button class="btn primary" onclick="cargarPublicado()">Cargar mi progreso</button>
+      <p id="cargarmsg" class="small muted" style="margin:8px 0 0"></p>
+      <p class="small muted" style="margin-top:6px">Si estás mirando el plan de otra persona no hace falta: podés usar la app en blanco.</p>
+    </div>` : ""}
     ${STORAGE_OK ? "" : `<div class="banner-done"><p style="margin:0"><b>⚠ Este navegador no está guardando tus datos.</b> Lo que anotes se pierde al cerrar la página — abrí la app en Safari o Chrome (no en el navegador de WhatsApp) o bajá un Backup desde Progreso antes de salir.</p></div>`}
     <main>${S.tab === "plan" ? viewPlan() : S.tab === "semana" ? viewSemana() : S.tab === "progreso" ? viewProgreso() : viewPerfil()}</main>
     <p class="footer-note">Tus registros quedan guardados en este dispositivo.<br>Desde Progreso podés descargar o mandar el resumen a Martín.</p>
@@ -1603,18 +1613,8 @@ function render() {
 /* ---- Tab: Plan ---- */
 function viewPlan() {
   const cw = curWeek();
-  const vacio = !Object.keys(S.logs || {}).length && !Object.keys(S.weekDone || {}).length;
   const next = !S.weekDone[cw] ? SEED.semanas[cw - 1] : SEED.semanas.find(w => !S.weekDone[w.n]);
   let h = "";
-  if (vacio && PUBLICADO) {
-    h += `<div class="banner-cargar">
-      <p><b>Este dispositivo no tiene tu progreso.</b> Los registros se guardan en cada navegador,
-      así que acá arranca vacío. Hay un progreso publicado: cargalo y seguís desde donde ibas.</p>
-      <button class="btn primary" onclick="cargarPublicado()">Cargar mi progreso</button>
-      <p id="cargarmsg" class="small muted" style="margin:8px 0 0"></p>
-      <p class="small muted" style="margin-top:6px">Si estás mirando el plan de otra persona, no hace falta: podés usar la app en blanco.</p>
-    </div>`;
-  }
   if (next) {
     h += `
       <button class="continue" onclick="openWeek(${next.n})">
