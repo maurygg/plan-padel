@@ -3551,8 +3551,16 @@ window.bajarInformeTexto = async () => {
 };
 window.exportResumen = () => offer("progreso-padel.md", buildResumen());
 function backupObj() {
+  /* Las rutinas son el 97% del peso y casi siempre son una copia del plan que la app
+     ya trae. Solo viajan las semanas que se editaron a mano. */
+  const R = {};
+  Object.keys(S.routines || {}).forEach(n => {
+    const seed = SEED.semanas[n - 1];
+    if (!seed || !seed.dias) { R[n] = S.routines[n]; return; }
+    if (JSON.stringify(S.routines[n].dias) !== JSON.stringify(seed.dias)) R[n] = S.routines[n];
+  });
   return {
-  planV: S.planV, weekDone: S.weekDone, dayDone: S.dayDone, secDone: S.secDone, routines: S.routines, compPick: S.compPick,
+  planV: S.planV, weekDone: S.weekDone, dayDone: S.dayDone, secDone: S.secDone, routines: R, compPick: S.compPick,
     weekNotes: S.weekNotes, dayNotes: S.dayNotes, logs: S.logs, evals: S.evals, comments: S.comments, bodyLog: S.bodyLog, seq: S.seq };
 }
 window.exportBackup = () => {
