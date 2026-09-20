@@ -1026,9 +1026,9 @@ const MACRO = [
 
 /* Nombre y objetivo de cada día, por mesociclo (hojas Mesociclo 1/2/3) */
 const DIA_NOM = [
-  ["Lunes · Tren inferior", "Martes · Tren superior y core", "Viernes · Complementario y prevención"],
-  ["Lunes · Fuerza", "Martes · Potencia", "Viernes · Coordinación y velocidad"],
-  ["Lunes · Fuerza específica", "Martes · Potencia específica", "Viernes · Integración al juego"]
+  ["Lunes · Tren inferior", "Miércoles · Tren superior y core", "Viernes · Complementario y prevención"],
+  ["Lunes · Fuerza", "Miércoles · Potencia", "Viernes · Coordinación y velocidad"],
+  ["Lunes · Fuerza específica", "Miércoles · Potencia específica", "Viernes · Integración al juego"]
 ];
 const L_OBJ = ["Fuerza máxima y estabilidad del tren inferior — desarrollar la fuerza máxima mejorando la estabilidad de la rodilla y la tolerancia a la carga.",
                "Fuerza máxima + fuerza específica — mantener y potenciar la fuerza, introduciendo contrastes para producir potencia.",
@@ -1148,6 +1148,48 @@ const DIAS_PLAN = {
        vNota: "Semana de reevaluación — activación + patrones de movimiento de pádel." }
 };
 
+/* ===== Natación (hojas "Natación 1" y "Natación 2" del plan de Martín) =====
+   Dos sesiones por semana, martes y jueves. No hay kilos: se registra hecho y,
+   si querés, el tiempo o las sensaciones en la nota. */
+const NAT_DRILLS = [
+  ["Entrada y catch", "https://www.youtube.com/shorts/kvbDMFt4kVs", "Fase de entrada: agarre del agua sin dejar caer el codo."],
+  ["Recobro · toco axila", "https://www.youtube.com/shorts/7iFN180YI7c", "Codo alto en el recobro."],
+  ["Recobro · arrastro dedos", "https://www.youtube.com/shorts/Hkeey82buQU", "Dedos rozando el agua: obliga al codo alto."],
+  ["Empuje · toco tabla", "https://www.youtube.com/shorts/Bz0ThpvKiCY", "Terminar el empuje hasta el muslo."]
+];
+const NAT = [
+  { id: "n1", nombre: "Martes · Natación 1", total: "1.600 m",
+    nota: "Sesión aeróbica de crawl — 1.600 m. Técnica primero, ritmo cómodo después.",
+    bloques: [
+      ["c", "Calentamiento", "200 m nado suave", "200 m", ""],
+      ["t", "Técnica", "4 × 50 m técnica", "200 m", "10-15\" entre series"],
+      ["a1", "Aeróbico", "3 × 200 m a ritmo cómodo", "600 m", "30-45\" entre series"],
+      ["a2", "Aeróbico continuo", "4 × 100 m ritmo medio", "400 m", "20-30\" entre series"],
+      ["v", "Vuelta a la calma", "200 m muy suave", "200 m", ""]
+    ] },
+  { id: "n2", nombre: "Jueves · Natación 2", total: "1.800 m",
+    nota: "Sesión de ritmo — 1.800 m. Más intensidad en el bloque principal.",
+    bloques: [
+      ["c", "Calentamiento", "200 m suave + 4 progresivas", "200 m", ""],
+      ["t", "Técnica", "4 × 50 m", "200 m", "30% · 60% · 90%"],
+      ["a1", "Bloque principal", "8 × 75 m ritmo medio-alto", "600 m", "20-30\" entre series · 4 regresivas"],
+      ["a2", "Bloque aeróbico", "4 × 150 m ritmo estable", "600 m", "30-45\" entre series · 90% · 60% · 30%"],
+      ["v", "Vuelta a la calma", "200 m suave", "200 m", ""]
+    ] }
+];
+function diaNatacion(cfg) {
+  return {
+    nombre: cfg.nombre,
+    nota: cfg.nota,
+    secciones: [
+      { nombre: "Sesión", ejercicios: cfg.bloques.map(b =>
+          ex(cfg.id + "-" + b[0], b[1] + " · " + b[2], b[3],
+             Object.assign({ sinPeso: true }, b[4] ? { descanso: b[4] } : {}))) },
+      { nombre: "Técnica de brazada", ejercicios: NAT_DRILLS.map((d, i) =>
+          ex(cfg.id + "-d" + i, d[0], "", { sinPeso: true, link: d[1], obs: d[2] })) }
+    ]
+  };
+}
 (function buildSemanas() {
   for (const w of MACRO) {
     const mc = w.n <= 4 ? 1 : w.n <= 8 ? 2 : 3;
@@ -1160,7 +1202,9 @@ const DIAS_PLAN = {
     const wn = WU_NOTA[mc - 1] ? " " + WU_NOTA[mc - 1] : "";
     const dias = [
       dia(DIA_NOM[mc - 1][0], L_OBJ[mc - 1] + wn, wu.L, p.L),
+      diaNatacion(NAT[0]),
       dia(DIA_NOM[mc - 1][1], M_OBJ[mc - 1] + wn, wu.M, p.M),
+      diaNatacion(NAT[1]),
       dia(DIA_NOM[mc - 1][2], V_OBJ[mc - 1] + (p.vNota ? " " + p.vNota : "") + wn, wu.V, p.V)
     ];
     SEED.semanas.push(Object.assign({}, w, { meso: mc, dias }));
@@ -1216,7 +1260,7 @@ function emptyDay(nm) { return { nombre: nm, secciones: DEFAULT_SECTIONS.map(s =
 
 function freshState() {
   return {
-    tab: "plan", selWeek: 1, edit: false, planV: 8,
+    tab: "plan", selWeek: 1, edit: false, planV: 9,
     weekDone: {}, dayDone: {}, secDone: {}, selDay: {},
     routines: {}, compPick: {}, weekNotes: {}, dayNotes: {}, logs: {}, evals: {},
     comments: [], bodyLog: [], openHist: {}, seq: 1, lastBackupTs: 0
@@ -1393,6 +1437,43 @@ function migrateV8(st) {
   st.planV = 8;
   return st;
 }
+/* v8→v9: entran dos días de natación (martes y jueves) entre los de gimnasio.
+   Todo lo que se indexa por posición del día —días hechos, evaluaciones, notas,
+   etapas, complementarios— apunta al lugar viejo: hay que correrlo.
+   Lunes 0→0 · Tren superior 1→2 · Complementario 2→4. */
+const DI_V9 = { 0: 0, 1: 2, 2: 4 };
+function migrateV9(st) {
+  const mover = (obj, partes) => {
+    const nu = {};
+    Object.entries(obj || {}).forEach(([k, v]) => {
+      const at = String(k).split("@");
+      const p = at[0].split("-");
+      if (p.length < partes) { nu[k] = v; return; }
+      const di = parseInt(p[1], 10);
+      if (!(di in DI_V9)) { nu[k] = v; return; }
+      p[1] = String(DI_V9[di]);
+      nu[p.join("-") + (at[1] !== undefined ? "@" + at[1] : "")] = v;
+    });
+    return nu;
+  };
+  st.dayDone = mover(st.dayDone, 2);
+  st.evals = mover(st.evals, 2);
+  st.dayNotes = mover(st.dayNotes, 2);
+  st.compPick = mover(st.compPick, 2);
+  st.secDone = mover(st.secDone, 3);
+  st.selDay = {};
+  // las rutinas ya guardadas tienen 3 días: se les insertan los de natación del plan
+  Object.keys(st.routines || {}).forEach(n => {
+    const r = st.routines[n], seed = SEED.semanas[n - 1];
+    if (!r || !r.dias || r.dias.length !== 3 || !seed || !seed.dias) return;
+    const clon = i => JSON.parse(JSON.stringify(seed.dias[i]));
+    r.dias = [r.dias[0], clon(1), r.dias[1], clon(3), r.dias[2]];
+    // el día de tren superior decía "Martes" y ahora la pileta ocupa ese lugar
+    if (seed.dias[2] && /^Martes · /.test(r.dias[2].nombre || "")) r.dias[2].nombre = seed.dias[2].nombre;
+  });
+  st.planV = 9;
+  return st;
+}
 function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
@@ -1440,6 +1521,7 @@ function load() {
     }
     if ((parsed.planV || 0) < 7) migrateV7(st);
     if ((parsed.planV || 0) < 8) migrateV8(st);
+    if ((parsed.planV || 0) < 9) migrateV9(st);
     Object.keys(st.routines || {}).forEach(k => {
       const r = st.routines[k];
       if (Array.isArray(r)) {
@@ -1857,7 +1939,7 @@ function viewSemana() {
     const sk = n + "-" + di + "-" + si;
     const done = !!S.secDone[sk];
     // Solo el Bloque principal queda a la vista; el resto se despliega al tocar
-    const open = S.edit ? true : (sk in SECOPEN ? SECOPEN[sk] : sec.nombre === "Bloque principal");
+    const open = S.edit ? true : (sk in SECOPEN ? SECOPEN[sk] : (sec.nombre === "Bloque principal" || sec.nombre === "Sesión"));
     if (S.edit) {
       h += `<div class="section-title"><h3>${esc(sec.nombre)}</h3>
         <button class="mini acc" onclick="openForm(${n},${di},${si},null)">＋ Ejercicio</button></div>`;
@@ -2218,12 +2300,12 @@ function viewProgreso() {
   // --- adherencia semana a semana ---
   const cw3 = curWeek();
   const adh = [];
-  for (let n = 1; n <= cw3; n++) adh.push({ l: "Sem " + n, v: sesionesHechas(n) });
+  for (let n = 1; n <= cw3; n++) adh.push({ l: "Sem " + n, v: sesionesHechas(n), tot: routineFor(n).dias.length });
   if (adh.length) {
-    const hh = adh.reduce((a, r) => a + r.v, 0), pp = adh.length * 3;
+    const hh = adh.reduce((a, r) => a + r.v, 0), pp = adh.reduce((a, r) => a + r.tot, 0);
     h += `<div class="card"><h2>Adherencia</h2>
       <p class="small muted" style="margin-bottom:10px">Sesiones completadas sobre las planificadas hasta hoy: <b style="color:var(--ink)">${hh} de ${pp}</b> (${pp ? Math.round(100 * hh / pp) : 0}%).</p>
-      ${barChart(adh, { fmt: v => v + "/3" })}</div>`;
+      ${barChart(adh, { fmt: (v, r) => v + "/" + (r && r.tot || 3) })}</div>`;
   }
 
   // --- rodilla: el número que decide si se progresa ---
@@ -2428,7 +2510,7 @@ function viewPerfil() {
 }
 
 /* ================= ACTIONS ================= */
-const WD_MAP = { 1: 0, 2: 1, 5: 2 }; // lunes→Día 1, martes→Día 2, viernes→Día 3
+const WD_MAP = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4 }; // lun→inferior, mar→natación 1, mié→superior, jue→natación 2, vie→complementario
 window.go = t => { S.tab = t; FORM = null; DFORM = null; ASK = null; save(); render(); window.scrollTo(0, 0); };
 window.openWeek = n => {
   S.selWeek = n; S.tab = "semana"; FORM = null; DFORM = null; ASK = null;
@@ -2505,7 +2587,7 @@ window.toggleSecOpen = sk => {
   const rout = routineFor(S.selWeek);
   const di = Math.min(S.selDay[S.selWeek] || 0, rout.dias.length - 1);
   const sec = rout.dias[di].secciones[parseInt(sk.split("-")[2], 10)];
-  const defOpen = sec && sec.nombre === "Bloque principal";
+  const defOpen = sec && (sec.nombre === "Bloque principal" || sec.nombre === "Sesión");
   SECOPEN[sk] = sk in SECOPEN ? !cur : !defOpen;
   render();
 };
@@ -2923,7 +3005,7 @@ function barChart(rows, o) {
   return `<div class="barchart">${rows.map(r => `<div class="brow">
     <span class="bl">${esc(r.l)}</span>
     <span class="bt"><span style="width:${Math.round(100 * r.v / max)}%" class="${r.v ? "" : "zero"}"></span></span>
-    <span class="bv">${esc(o.fmt ? o.fmt(r.v) : String(r.v))}</span>
+    <span class="bv">${esc(o.fmt ? o.fmt(r.v, r) : String(r.v))}</span>
   </div>`).join("")}</div>`;
 }
 
@@ -3154,7 +3236,7 @@ function viewInforme() {
       <span class="rk"><b>${plan ? Math.round(100 * hechas / plan) : 0}%</b><span>del plan</span></span>
       <span class="rk"><b>${ses.length}</b><span>días con registro</span></span>
     </p>
-    ${barChart(filas, { fmt: v => v + "/3" })}
+    ${barChart(filas, { fmt: (v, r) => v + "/" + (r && r.tot || 3) })}
   </section>`;
 
   // --- rodilla: el criterio de progresión de Martín ---
@@ -3510,6 +3592,7 @@ function aplicarImport(d) {
     if ((d.planV || 0) < 4) { delete d.routines; delete d.weekDone; delete d.dayDone; delete d.secDone; delete d.evals; delete d.compPick; }
     if ((d.planV || 0) < 7) migrateV7(d);
     if ((d.planV || 0) < 8) migrateV8(d);
+    if ((d.planV || 0) < 9) migrateV9(d);
     if ((d.planV || 0) < 6 && d.weekNotes) {
       d.dayNotes = d.dayNotes || {};
       Object.entries(d.weekNotes).forEach(([n, v]) => { if (v && String(v).trim()) d.dayNotes[n + "-0"] = String(v).trim(); });
