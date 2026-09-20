@@ -2236,9 +2236,11 @@ function viewProgreso() {
         <button class="btn" onclick="exportResumen()">${window.claude && window.claude.downloads ? "Descargar" : "Copiar"} resumen</button>
       </div>
       <div class="rowbtns" style="margin-top:7px">
-        <button class="btn ghost" onclick="exportBackup()">${window.claude && window.claude.downloads ? "Backup" : "Copiar backup"}</button>
+        <button class="btn ghost" onclick="exportBackup()">${window.claude && window.claude.downloads ? "Bajar backup" : "Copiar backup"}</button>
+        <button class="btn ghost" onclick="copiarBackup()">Copiar backup</button>
         <button class="btn ghost" onclick="toggleImport()">Importar</button>
       </div>
+      <p class="small muted" style="margin-top:8px">Para mudar tus datos a otro navegador o dispositivo: <b>Copiar backup</b> acá, abrir la app allá y pegarlo en <b>Importar</b>.</p>
       <div id="impwrap" class="${IMPOPEN ? "" : "hiddenbox"}" style="margin-top:10px">
         <textarea id="impbox" class="impbox" placeholder="Pegá acá el contenido del backup (.json) y tocá Importar"></textarea>
         <div class="rowbtns"><button class="btn" onclick="doImport()">Importar datos</button></div>
@@ -3244,12 +3246,29 @@ window.bajarInformeTexto = async () => {
   catch (e) { if (m) m.textContent = "No se pudo copiar en este entorno."; }
 };
 window.exportResumen = () => offer("progreso-padel.md", buildResumen());
+function backupObj() {
+  return {
+  planV: S.planV, weekDone: S.weekDone, dayDone: S.dayDone, secDone: S.secDone, routines: S.routines, compPick: S.compPick,
+    weekNotes: S.weekNotes, dayNotes: S.dayNotes, logs: S.logs, evals: S.evals, comments: S.comments, bodyLog: S.bodyLog, seq: S.seq };
+}
 window.exportBackup = () => {
   S.lastBackupTs = Date.now(); save();
-  return offer("backup-plan-padel.json", JSON.stringify({
-  planV: S.planV, weekDone: S.weekDone, dayDone: S.dayDone, secDone: S.secDone, routines: S.routines, compPick: S.compPick,
-  weekNotes: S.weekNotes, dayNotes: S.dayNotes, logs: S.logs, evals: S.evals, comments: S.comments, bodyLog: S.bodyLog, seq: S.seq
-}, null, 2));
+  return offer("backup-plan-padel.json", JSON.stringify(backupObj(), null, 2));
+};
+window.copiarBackup = async () => {
+  const msg = $("#expmsg");
+  const data = JSON.stringify(backupObj());
+  try {
+    await navigator.clipboard.writeText(data);
+    S.lastBackupTs = Date.now(); save();
+    if (msg) msg.textContent = "Backup copiado ✓ (" + Math.round(data.length / 1024) + " KB) — pegalo en Importar en el otro dispositivo.";
+  } catch (e) {
+    IMPOPEN = true; render();
+    const b = $("#impbox");
+    if (b) { b.value = data; b.select(); }
+    const m2 = $("#expmsg");
+    if (m2) m2.textContent = "No se pudo copiar solo: está seleccionado abajo, copialo a mano.";
+  }
 };
 window.toggleImport = () => { IMPOPEN = !IMPOPEN; render(); };
 window.doImport = () => {
