@@ -1228,6 +1228,7 @@ const MIGRATE = {
   "w1-c2": "s1-m1", "w1-d2c2": "s1-m1"
 };
 let READONLY = false;  // informe abierto desde un link compartido: nunca se guarda nada
+let PENDIMPORT = null; // backup que llegó por link y espera confirmación
 let S = load();
 save();   // persistir migraciones apenas cargan (antes quedaban solo en memoria hasta la primera acción)
 let FORM = null, DFORM = null, IMPOPEN = false, RPEREF = false;
@@ -1514,6 +1515,29 @@ function tabTitulo() {
   return "Semana " + S.selWeek + " de 12";
 }
 function render() {
+  if (PENDIMPORT) {
+    const d = PENDIMPORT;
+    const nLogs = Object.keys(d.logs || {}).length;
+    const nRegs = Object.values(d.logs || {}).reduce((a, v) => a + v.length, 0);
+    const nEv = Object.keys(d.evals || {}).length;
+    const tengo = Object.keys(S.logs || {}).length;
+    document.body.classList.remove("reporting");
+    $("#app").innerHTML = `
+      <header class="masthead mini"><span class="mini-t">Importar datos</span>
+        <span class="mini-s">Plan Prevención · Prof. Martín Ferreras</span></header>
+      <div class="card" style="margin-top:14px">
+        <h2>Este link trae datos para tu app</h2>
+        <p class="small" style="line-height:1.55;margin-top:8px">
+          <b>${nLogs} ejercicios</b> con <b>${nRegs} registros</b>${nEv ? ", <b>" + nEv + "</b> evaluaciones" : ""}.</p>
+        ${tengo ? `<p class="small" style="margin-top:10px;color:var(--clay)"><b>Ojo:</b> ya tenés ${tengo} ejercicios cargados en este dispositivo y se van a reemplazar. Si no querés perderlos, cancelá y bajá un backup primero desde Progreso.</p>`
+          : `<p class="small muted" style="margin-top:10px">Este dispositivo no tiene datos cargados todavía.</p>`}
+        <div class="rowbtns" style="margin-top:14px">
+          <button class="btn primary" onclick="confirmarImport()">Importar</button>
+          <button class="btn ghost" onclick="cancelarImport()">Cancelar</button>
+        </div>
+      </div>`;
+    return;
+  }
   if (INFORME) {
     document.body.classList.add("reporting");
     $("#app").innerHTML = `
@@ -2233,7 +2257,7 @@ function viewProgreso() {
       h += `<button class="exrow asrow" onclick="toggleExo('${esc(k.replace(/'/g, ""))}')" aria-expanded="${ab}">
         <span><span class="nm">${esc(m.nombre)}</span><br>
           <span class="ctx">${esc(m.esquemas.join(" → ") || "—")} · ${m.fechas.length} ${m.fechas.length > 1 ? "sesiones" : "sesión"}</span>
-          ${m.delta !== null ? `<br><span class="deltapill ${m.delta > 0 ? "up" : m.delta < 0 ? "down" : ""}">${m.delta > 0 ? "+" : ""}${nfmt(m.delta)} kg${m.pct !== null ? " · " + (m.pct > 0 ? "+" : "") + m.pct + "%" : ""}</span>` : ""}
+          ${m.delta !== null ? `<br><span class="deltapill ${m.mejora > 0 ? "up" : m.mejora < 0 ? "down" : ""}">${m.delta > 0 ? "+" : ""}${nfmt(m.delta)} kg${m.pct !== null ? " · " + (m.pct > 0 ? "+" : "") + m.pct + "%" : ""}${m.inverso ? " de asistencia" : ""}</span>` : ""}
           ${m.pr !== null && m.serie.length > 1 ? `<span class="pr">PR ${m.pr}</span>` : ""}</span>
         <span style="display:flex;align-items:center;gap:10px">${sparkline(m.serie)}<span class="val">${esc(m.regs[m.regs.length - 1].peso)}</span></span>
       </button>`;
@@ -2305,9 +2329,10 @@ function viewProgreso() {
       <div class="rowbtns" style="margin-top:7px">
         <button class="btn ghost" onclick="exportBackup()">${window.claude && window.claude.downloads ? "Bajar backup" : "Copiar backup"}</button>
         <button class="btn ghost" onclick="copiarBackup()">Copiar backup</button>
+        <button class="btn ghost" onclick="copiarLinkImport()">Link para mudar</button>
         <button class="btn ghost" onclick="toggleImport()">Importar</button>
       </div>
-      <p class="small muted" style="margin-top:8px">Para mudar tus datos a otro navegador o dispositivo: <b>Copiar backup</b> acá, abrir la app allá y pegarlo en <b>Importar</b>.</p>
+      <p class="small muted" style="margin-top:8px">Para mudar tus datos a otro navegador o dispositivo: lo más rápido es <b>Link para mudar</b> — se copia un link que abrís allá y confirmás. <b>Copiar backup</b> + <b>Importar</b> hace lo mismo pegando el texto.</p>
       <div id="impwrap" class="${IMPOPEN ? "" : "hiddenbox"}" style="margin-top:10px">
         <textarea id="impbox" class="impbox" placeholder="Pegá acá el contenido del backup (.json) y tocá Importar"></textarea>
         <div class="rowbtns"><button class="btn" onclick="doImport()">Importar datos</button></div>
@@ -2805,6 +2830,9 @@ function sesionesPlan(fromW, toW) {
 /* Martín cambia el esquema entre semanas y eso genera un id nuevo para el mismo
    ejercicio: agrupado por id, "Landmine Press" son dos ejercicios distintos y la
    progresión real no se ve. Acá se agrupa por nombre. */
+/* En un ejercicio asistido el peso es la AYUDA de la máquina: bajar de 44 a 40 kg es
+   progresar, no retroceder. Sin esto el informe le muestra a Martín lo contrario. */
+function esAsistido(exo) { return /asistid/i.test(String(exo && exo.nombre || "")); }
 function cargasPorEjercicio(from, to) {
   const map = {};
   walkAll(exo => {
@@ -2816,7 +2844,7 @@ function cargasPorEjercicio(from, to) {
     });
     if (!dentro.length) return;
     const key = String(exo.nombre).trim().toLowerCase();
-    const m = map[key] || (map[key] = { nombre: exo.nombre, esquemas: [], regs: [] });
+    const m = map[key] || (map[key] = { nombre: exo.nombre, esquemas: [], regs: [], inverso: esAsistido(exo) });
     if (exo.esquema && m.esquemas.indexOf(exo.esquema) < 0) m.esquemas.push(exo.esquema);
     m.regs = m.regs.concat(dentro);
   });
@@ -2826,9 +2854,11 @@ function cargasPorEjercicio(from, to) {
     m.serie = bestPerDate(m.regs);
     m.fechas = [];
     m.regs.forEach(r => { if (m.fechas.indexOf(r.fecha) < 0) m.fechas.push(r.fecha); });
-    m.pr = m.serie.length ? Math.max.apply(null, m.serie) : null;
-    m.delta = m.serie.length > 1 ? m.serie[m.serie.length - 1] - m.serie[0] : null;
-    m.pct = m.delta !== null && m.serie[0] ? Math.round(100 * m.delta / m.serie[0]) : null;
+    m.pr = m.serie.length ? (m.inverso ? Math.min.apply(null, m.serie) : Math.max.apply(null, m.serie)) : null;
+    const bruto = m.serie.length > 1 ? m.serie[m.serie.length - 1] - m.serie[0] : null;
+    m.delta = bruto;
+    m.mejora = bruto === null ? null : (m.inverso ? -bruto : bruto);   // signo "¿progresó?"
+    m.pct = bruto !== null && m.serie[0] ? Math.round(100 * (m.inverso ? -bruto : bruto) / m.serie[0]) : null;
     return m;
   }).sort((a, b) => (b.serie.length - a.serie.length) || a.nombre.localeCompare(b.nombre, "es"));
 }
@@ -2903,7 +2933,8 @@ function textoInforme() {
     ejs.forEach(m => {
       t += "• " + m.nombre + " (" + (m.esquemas.join(" → ") || "—") + "): " +
         m.fechas.map(f => m.regs.filter(r => r.fecha === f).map(r => r.peso).join("/") + " el " + f).join(" → ") +
-        (m.delta !== null ? "  [" + (m.delta > 0 ? "+" : "") + nfmt(m.delta) + " kg" + (m.pct !== null ? " · " + (m.pct > 0 ? "+" : "") + m.pct + "%" : "") + "]" : "") + "\n";
+        (m.delta !== null ? "  [" + (m.delta > 0 ? "+" : "") + nfmt(m.delta) + " kg" + (m.pct !== null ? " · " + (m.pct > 0 ? "+" : "") + m.pct + "%" : "") +
+          (m.inverso ? " de asistencia — menos es mejor" : "") + "]" : "") + "\n";
     });
   }
   t += "\nSESIÓN POR SESIÓN\n";
@@ -2990,6 +3021,37 @@ function aplicarCompartido(d) {
   S.compPick = d.P || {}; S.routines = d.R || {};
   EXCACHE = null;
 }
+/* Link de importación: trae un backup entero dentro de la URL y lo carga previa
+   confirmación. Sirve para mudar de dispositivo sin archivos y para que yo te pase
+   datos corregidos de un toque. A diferencia de #r=, este SÍ escribe. */
+window.copiarLinkImport = async () => {
+  const m = $("#expmsg");
+  if (m) m.textContent = "Armando el link…";
+  try {
+    const cod = await comprimir({ v: 1, bk: backupObj() });
+    const link = location.origin + location.pathname + "#i=" + cod;
+    if (link.length > 60000) { if (m) m.textContent = "Hay demasiados datos para un link — usá Copiar backup."; return; }
+    await navigator.clipboard.writeText(link);
+    if (m) m.textContent = "Link copiado ✓ (" + Math.round(link.length / 1024) + " KB) — abrilo en el otro dispositivo y confirmá la importación.";
+  } catch (e) {
+    if (m) m.textContent = "No se pudo generar el link (" + ((e && e.message) || "error") + ").";
+  }
+};
+window.confirmarImport = () => {
+  if (!PENDIMPORT) return;
+  const d = PENDIMPORT; PENDIMPORT = null;
+  IMPOPEN = true; render();
+  const box = $("#impbox");
+  if (box) box.value = JSON.stringify(d);
+  doImport();
+  try { history.replaceState(null, "", location.pathname); } catch (e) {}
+  S.tab = "progreso"; save(); render(); window.scrollTo(0, 0);
+};
+window.cancelarImport = () => {
+  PENDIMPORT = null;
+  try { history.replaceState(null, "", location.pathname); } catch (e) {}
+  render(); window.scrollTo(0, 0);
+};
 window.copiarLink = async () => {
   const m = $("#repmsg");
   if (m) m.textContent = "Armando el link…";
@@ -3076,16 +3138,16 @@ function viewInforme() {
       <table class="rep-tab"><thead><tr><th>Ejercicio</th><th>Sesión a sesión</th><th class="r">Progreso</th></tr></thead><tbody>`;
     ejs.forEach(m => {
       const ult = m.serie[m.serie.length - 1];
-      const tope = m.serie.length > 1 && ult >= m.pr;
-      const pctPR = m.pr ? Math.round(100 * ult / m.pr) : null;
+      const tope = m.serie.length > 1 && (m.inverso ? ult <= m.pr : ult >= m.pr);
+      const pctPR = m.pr ? Math.round(100 * (m.inverso ? m.pr / ult : ult / m.pr)) : null;
       h += `<tr>
         <td><b>${esc(m.nombre)}</b>${tope ? ' <span class="pr">PR</span>' : ""}
-          <br><span class="dim">${esc(m.esquemas.join(" → ") || "—")}</span></td>
+          <br><span class="dim">${esc(m.esquemas.join(" → ") || "—")}${m.inverso ? " · el peso es la asistencia: menos es mejor" : ""}</span></td>
         <td class="mono sm">${m.fechas.map(f => {
           const v = m.regs.filter(r => r.fecha === f).map(r => esc(r.peso)).join(" · ");
           return '<span class="dim">' + esc(f) + "</span>  " + v + " kg";
         }).join("<br>")}</td>
-        <td class="r mono ${m.delta > 0 ? "up" : m.delta < 0 ? "down" : ""}">${m.delta === null
+        <td class="r mono ${m.mejora > 0 ? "up" : m.mejora < 0 ? "down" : ""}">${m.delta === null
           ? '<span class="dim">1ª vez</span>'
           : (m.delta > 0 ? "+" : "") + nfmt(m.delta) + " kg" +
             (m.pct !== null ? '<br><span class="dim">' + (m.pct > 0 ? "+" : "") + m.pct + "%</span>" : "")}
@@ -3413,9 +3475,15 @@ render();
    aparte: lo que el visitante tenga guardado no se lee ni se pisa. */
 async function abrirCompartido() {
   const h = String(location.hash || "");
-  if (h.indexOf("#r=") !== 0) return;
+  if (h.indexOf("#r=") !== 0 && h.indexOf("#i=") !== 0) return;
   try {
     const d = await descomprimir(h.slice(3));
+    if (h.indexOf("#i=") === 0) {           // link de importación: pide confirmación
+      PENDIMPORT = d.bk || d;
+      render();
+      window.scrollTo(0, 0);
+      return;
+    }
     aplicarCompartido(d);
     INFORME = { from: d.f || 1, to: d.t || 12 };
     render();
@@ -3429,7 +3497,8 @@ async function abrirCompartido() {
 abrirCompartido();
 // pegar el link en una pestaña ya abierta solo cambia el hash: el script no se re-ejecuta
 window.addEventListener("hashchange", () => {
-  if (String(location.hash || "").indexOf("#r=") === 0) location.reload();
+  const h = String(location.hash || "");
+  if (h.indexOf("#r=") === 0 || h.indexOf("#i=") === 0) location.reload();
 });
 </script>
 
