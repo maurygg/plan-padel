@@ -504,6 +504,7 @@
   .rep-ses:last-child { border-bottom: 0; }
   .rs-top { margin: 0; font-size: 12.5px; color: var(--muted); }
   .rs-top b { font-family: var(--mono); color: var(--ink); }
+  .rs-top .dim { color: var(--muted); font-size: 11px; }
   .rs-top .ok { color: var(--green); font-family: var(--mono); font-size: 10px;
     text-transform: uppercase; letter-spacing: .05em; }
   .rs-ev { margin: 4px 0 0; font-size: 12.5px; color: var(--clay); font-weight: 600; }
@@ -1211,7 +1212,7 @@ function emptyDay(nm) { return { nombre: nm, secciones: DEFAULT_SECTIONS.map(s =
 
 function freshState() {
   return {
-    tab: "plan", selWeek: 1, edit: false, planV: 7,
+    tab: "plan", selWeek: 1, edit: false, planV: 8,
     weekDone: {}, dayDone: {}, secDone: {}, selDay: {},
     routines: {}, compPick: {}, weekNotes: {}, dayNotes: {}, logs: {}, evals: {},
     comments: [], bodyLog: [], openHist: {}, seq: 1, lastBackupTs: 0
@@ -1265,6 +1266,15 @@ function logDate(l) { const m = String(l.fecha).split("/"); return (parseInt(m[1
 /* Evaluaciones y notas se guardan POR SESIÓN (día del plan + fecha real), no por día del
    plan: si no, el RPE y las horas de sueño de la vez anterior reaparecen al volver al
    mismo lunes. La clave es "semana-día@fecha" y lo viejo queda como historial. */
+const DIAS_SEM = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+/* El día real en que se entrenó, sacado de la fecha. El rótulo del plan puede no
+   coincidir: correr el entreno del lunes al martes es normal, y eso Martín lo quiere ver. */
+function diaSemanaDe(fecha) {
+  const p = String(fecha).split("/");
+  if (p.length < 2) return "";
+  const d = new Date(FECHA_INICIO.getFullYear(), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
+  return DIAS_SEM[d.getDay()] || "";
+}
 function fechaOrd(f) { const m = String(f).split("/"); return (parseInt(m[1], 10) || 0) * 100 + (parseInt(m[0], 10) || 0); }
 function sesKey(dk, fecha) { return dk + "@" + (fecha || hoy()); }
 function sesFechas(obj, dk) {
@@ -1321,6 +1331,62 @@ function migrateV7(st) {
   st.planV = 7;
   return st;
 }
+/* v7→v8: arregla las fechas que puso migrateV7. Buscaba el registro más viejo del día
+   sin exigir que cayera en la semana, y los ids que vienen de planes anteriores traen
+   registros de julio y agosto: seis evaluaciones de septiembre quedaron fechadas en agosto.
+   Acá se re-fecha usando solo los registros dentro de la ventana real de esa semana. */
+function migrateV8(st) {
+  /* Los tres días de una semana comparten los ejercicios de calentamiento, así que
+     mirar todos daría siempre la fecha del primer día. Se usan los ejercicios PROPIOS
+     del día (el bloque principal); si no alcanzan, se reparten las fechas de la semana
+     en orden entre los días. */
+  const rutina = n => (st.routines && st.routines[n] && st.routines[n].dias) ? st.routines[n] : (SEED.semanas[n - 1] || {});
+  const idsDe = (n, di) => {
+    const d = (rutina(n).dias || [])[di];
+    const out = [];
+    if (d) d.secciones.forEach(sx => sx.ejercicios.forEach(e => out.push(e.id)));
+    return out;
+  };
+  const fechasSemana = n => {
+    const set = {};
+    (rutina(n).dias || []).forEach((d, i) => idsDe(n, i).forEach(id => ((st.logs || {})[id] || []).forEach(l => {
+      if (enSemana(n, l.fecha)) set[l.fecha] = 1;
+    })));
+    return Object.keys(set).sort((a, b) => fechaOrd(a) - fechaOrd(b));
+  };
+  const fechaEnSemana = (n, di) => {
+    const dias = rutina(n).dias || [];
+    const otros = {};
+    dias.forEach((d, i) => { if (i !== di) idsDe(n, i).forEach(id => { otros[id] = 1; }); });
+    const propios = idsDe(n, di).filter(id => !otros[id]);
+    const cuenta = {};
+    propios.forEach(id => ((st.logs || {})[id] || []).forEach(l => {
+      if (enSemana(n, l.fecha)) cuenta[l.fecha] = (cuenta[l.fecha] || 0) + 1;
+    }));
+    const porUso = Object.keys(cuenta).sort((a, b) => cuenta[b] - cuenta[a] || fechaOrd(a) - fechaOrd(b));
+    if (porUso.length) return porUso[0];
+    const fs = fechasSemana(n);          // sin ejercicios propios: repartir en orden
+    return fs[di] || fs[fs.length - 1] || null;
+  };
+  const arreglar = obj => {
+    const nu = {};
+    Object.entries(obj || {}).forEach(([k, v]) => {
+      const at = String(k).split("@");
+      if (at.length < 2) { nu[k] = v; return; }
+      const sep = at[0].lastIndexOf("-");
+      const n = parseInt(at[0].slice(0, sep), 10), di = parseInt(at[0].slice(sep + 1), 10);
+      // solo se toca lo que quedó fuera de la ventana de su propia semana
+      if (at[1] !== "s/f" && enSemana(n, at[1])) { nu[k] = v; return; }
+      const f = fechaEnSemana(n, di);
+      nu[at[0] + "@" + (f || at[1])] = v;
+    });
+    return nu;
+  };
+  st.evals = arreglar(st.evals);
+  st.dayNotes = arreglar(st.dayNotes);
+  st.planV = 8;
+  return st;
+}
 function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
@@ -1367,6 +1433,7 @@ function load() {
       st.planV = 6;
     }
     if ((parsed.planV || 0) < 7) migrateV7(st);
+    if ((parsed.planV || 0) < 8) migrateV8(st);
     Object.keys(st.routines || {}).forEach(k => {
       const r = st.routines[k];
       if (Array.isArray(r)) {
@@ -2683,26 +2750,57 @@ function enSemana(n, fecha) {
   const o = fechaOrd(fecha);
   return o >= (a.getMonth() + 1) * 100 + a.getDate() && o <= (b.getMonth() + 1) * 100 + b.getDate();
 }
+/* Una fecha = una sesión. Los tres días de la semana comparten los ejercicios de
+   calentamiento, así que agrupar por día del plan hacía aparecer un mismo entreno
+   tres veces. Se agrupa por fecha y se rotula con el día que más aportó ese día. */
+/* Ejercicios que solo aparecen en ese día de la semana — el bloque principal.
+   Son los que de verdad identifican qué se entrenó: el calentamiento es igual los tres días. */
+function idsPropios(n, di) {
+  const dias = routineFor(n).dias;
+  const otros = {};
+  dias.forEach((d, i) => { if (i !== di) d.secciones.forEach(sx => sx.ejercicios.forEach(e => { otros[e.id] = 1; })); });
+  const out = {};
+  (dias[di] ? dias[di].secciones : []).forEach(sx => sx.ejercicios.forEach(e => { if (!otros[e.id]) out[e.id] = 1; }));
+  return out;
+}
 function sesionesPlan(fromW, toW) {
-  const out = [];
+  const porFecha = {};
+  const tocar = f => porFecha[f] || (porFecha[f] = { fecha: f, regs: [], vistos: {}, cuenta: {}, dias: {} });
   for (let n = fromW; n <= toW; n++) {
-    const rout = routineFor(n);
-    rout.dias.forEach((d, di) => {
+    routineFor(n).dias.forEach((d, di) => {
       const dk = n + "-" + di;
-      const fechas = new Set(sesFechas(S.evals, dk).concat(sesFechas(S.dayNotes, dk)).filter(f => f !== "s/f"));
-      const porFecha = {};
-      d.secciones.forEach(sx => sx.ejercicios.forEach(e => (S.logs[e.id] || []).forEach(l => {
-        if (!enSemana(n, l.fecha)) return;
-        fechas.add(l.fecha);
-        (porFecha[l.fecha] = porFecha[l.fecha] || []).push({ ex: e, log: l });
-      })));
-      Array.from(fechas).sort((a, b) => fechaOrd(a) - fechaOrd(b)).forEach(f => {
-        out.push({ n, di, dk, fecha: f, dia: d.nombre, ev: S.evals[sesKey(dk, f)] || {},
-          nota: (S.dayNotes[sesKey(dk, f)] || "").trim(), regs: porFecha[f] || [] });
+      const propios = idsPropios(n, di);
+      sesFechas(S.evals, dk).concat(sesFechas(S.dayNotes, dk)).forEach(f => {
+        if (f === "s/f" || !enSemana(n, f)) return;
+        const o = tocar(f);
+        o.dias[dk] = { n, di, dia: d.nombre };
+        o.cuenta[dk] = (o.cuenta[dk] || 0) + 1;
       });
+      d.secciones.forEach(sx => sx.ejercicios.forEach(e => (S.logs[e.id] || []).forEach((l, li) => {
+        if (!enSemana(n, l.fecha)) return;
+        const o = tocar(l.fecha);
+        o.dias[dk] = { n, di, dia: d.nombre };
+        // solo los ejercicios propios del día deciden de qué día fue la sesión
+        if (propios[e.id]) o.cuenta[dk] = (o.cuenta[dk] || 0) + (l.peso !== "✓" ? 5 : 2);
+        const clave = e.id + "#" + li;
+        if (!o.vistos[clave]) { o.vistos[clave] = 1; o.regs.push({ ex: e, log: l }); }
+      })));
     });
   }
-  return out.sort((a, b) => fechaOrd(a.fecha) - fechaOrd(b.fecha) || a.di - b.di);
+  return Object.keys(porFecha).sort((a, b) => fechaOrd(a) - fechaOrd(b)).map(f => {
+    const o = porFecha[f];
+    const dk = Object.keys(o.cuenta).sort((a, b) => o.cuenta[b] - o.cuenta[a])[0] || Object.keys(o.dias)[0];
+    const info = o.dias[dk] || { n: fromW, di: 0, dia: "" };
+    // la evaluación y la nota de esa fecha, la haya cargado el día que la haya cargado
+    let ev = {}, nota = "";
+    Object.keys(o.dias).forEach(k => {
+      const e2 = S.evals[sesKey(k, f)];
+      if (e2 && evalResumenTxt(e2) && !evalResumenTxt(ev)) ev = e2;
+      const n2 = (S.dayNotes[sesKey(k, f)] || "").trim();
+      if (n2 && !nota) nota = n2;
+    });
+    return { n: info.n, di: info.di, dk, fecha: f, dia: info.dia, ev, nota, regs: o.regs };
+  });
 }
 /* Martín cambia el esquema entre semanas y eso genera un id nuevo para el mismo
    ejercicio: agrupado por id, "Landmine Press" son dos ejercicios distintos y la
@@ -2810,7 +2908,7 @@ function textoInforme() {
   }
   t += "\nSESIÓN POR SESIÓN\n";
   ses.forEach(x => {
-    t += "\n" + x.fecha + " · Semana " + x.n + " · " + x.dia + (S.dayDone[x.dk] ? " ✓" : "") + "\n";
+    t += "\n" + x.fecha + " " + diaSemanaDe(x.fecha) + " · Semana " + x.n + " · " + x.dia + (S.dayDone[x.dk] ? " ✓" : "") + "\n";
     const ev = evalResumenTxt(x.ev);
     if (ev) t += "  " + ev + "\n";
     if (x.nota) t += "  Nota: " + x.nota + "\n";
@@ -3004,7 +3102,8 @@ function viewInforme() {
   ses.forEach(x => {
     const ev = evalResumenTxt(x.ev);
     h += `<div class="rep-ses">
-      <p class="rs-top"><b>${esc(x.fecha)}</b> · Semana ${x.n} · ${esc(x.dia)}${S.dayDone[x.dk] ? ' <span class="ok">completado</span>' : ""}</p>
+      <p class="rs-top"><b>${esc(x.fecha)}</b> ${esc(diaSemanaDe(x.fecha))} · Semana ${x.n}${S.dayDone[x.dk] ? ' <span class="ok">completado</span>' : ""}
+        <br><span class="dim">${esc(x.dia)}</span></p>
       ${ev ? `<p class="rs-ev">${esc(ev)}</p>` : ""}
       ${x.nota ? `<p class="rs-nota">${esc(x.nota)}</p>` : ""}
       ${(() => {
@@ -3284,6 +3383,7 @@ window.doImport = () => {
     if ((d.planV || 0) < 3) delete d.routines;
     if ((d.planV || 0) < 4) { delete d.routines; delete d.weekDone; delete d.dayDone; delete d.secDone; delete d.evals; delete d.compPick; }
     if ((d.planV || 0) < 7) migrateV7(d);
+    if ((d.planV || 0) < 8) migrateV8(d);
     if ((d.planV || 0) < 6 && d.weekNotes) {
       d.dayNotes = d.dayNotes || {};
       Object.entries(d.weekNotes).forEach(([n, v]) => { if (v && String(v).trim()) d.dayNotes[n + "-0"] = String(v).trim(); });
