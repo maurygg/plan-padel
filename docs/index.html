@@ -1229,6 +1229,7 @@ const MIGRATE = {
 };
 let READONLY = false;  // informe abierto desde un link compartido: nunca se guarda nada
 let PENDIMPORT = null; // backup que llegó por link y espera confirmación
+let PUBLICADO = false; // hay un datos.json publicado junto a la app
 let S = load();
 save();   // persistir migraciones apenas cargan (antes quedaban solo en memoria hasta la primera acción)
 let FORM = null, DFORM = null, IMPOPEN = false, RPEREF = false;
@@ -1549,7 +1550,8 @@ function render() {
       ${READONLY ? `<div class="rep-shared">Este informe te lo compartió <b>Mauro</b>. Es solo de lectura: no se guarda nada en tu dispositivo ni se modifica nada.</div>` : ""}
       ${viewInforme()}
       <div class="rep-actions">
-        ${READONLY ? "" : `<button class="btn primary" onclick="copiarLink()">Copiar link para Martín</button>`}
+        ${READONLY ? "" : `<button class="btn primary" onclick="copiarLink()">Copiar link para Martín</button>
+        ${PUBLICADO ? `<button class="btn" onclick="copiarLinkPublicado()">Copiar link corto (datos publicados)</button>` : ""}`}
         <button class="btn ${READONLY ? "primary" : ""}" onclick="imprimirInforme()">Imprimir / guardar PDF</button>
         <button class="btn" onclick="bajarInformeImagen()">Descargar como imagen</button>
         <button class="btn ghost" onclick="bajarInformeTexto()">${window.claude && window.claude.downloads ? "Descargar en texto" : "Copiar en texto"}</button>
@@ -3040,17 +3042,41 @@ window.copiarLinkImport = async () => {
 window.confirmarImport = () => {
   if (!PENDIMPORT) return;
   const d = PENDIMPORT; PENDIMPORT = null;
-  IMPOPEN = true; render();
-  const box = $("#impbox");
-  if (box) box.value = JSON.stringify(d);
-  doImport();
+  const ok = aplicarImport(d);
   try { history.replaceState(null, "", location.pathname); } catch (e) {}
-  S.tab = "progreso"; save(); render(); window.scrollTo(0, 0);
+  S.tab = "progreso"; IMPOPEN = false; save(); render(); window.scrollTo(0, 0);
+  const m = $("#expmsg");
+  if (m) m.textContent = ok ? "Datos importados ✓" : "No se pudieron importar los datos de este link.";
 };
 window.cancelarImport = () => {
   PENDIMPORT = null;
   try { history.replaceState(null, "", location.pathname); } catch (e) {}
   render(); window.scrollTo(0, 0);
+};
+/* Informe publicado: los datos viven en datos.json junto a la app, así el link que
+   recibe Martín es corto y siempre muestra lo último que se publicó. Se carga sobre un
+   estado aparte y en solo lectura: nada de lo que tenga quien lo abre se toca. */
+async function abrirPublicado() {
+  const r = await fetch("datos.json?v=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("sin datos publicados");
+  const d = await r.json();
+  READONLY = true;
+  S = freshState();
+  EXCACHE = null;
+  if (!aplicarImport(d)) throw new Error("datos inválidos");
+  let ult = 1;
+  Object.keys(S.weekDone || {}).forEach(k => { if (S.weekDone[k]) ult = Math.max(ult, parseInt(k, 10) || 1); });
+  INFORME = { from: 1, to: Math.max(ult, 1) };
+  render();
+  window.scrollTo(0, 0);
+}
+window.copiarLinkPublicado = async () => {
+  const m = $("#repmsg") || $("#expmsg");
+  const link = location.origin + location.pathname + "#informe";
+  try {
+    await navigator.clipboard.writeText(link);
+    if (m) m.textContent = "Link copiado ✓ — " + link;
+  } catch (e) { if (m) m.textContent = link; }
 };
 window.copiarLink = async () => {
   const m = $("#repmsg");
@@ -3434,8 +3460,19 @@ window.copiarBackup = async () => {
 window.toggleImport = () => { IMPOPEN = !IMPOPEN; render(); };
 window.doImport = () => {
   const msg = $("#expmsg");
+  const box = $("#impbox");
+  if (!box) { if (msg) msg.textContent = "No hay nada para importar."; return false; }
   try {
-    const d = JSON.parse($("#impbox").value);
+    const d = JSON.parse(box.value);
+    const ok = aplicarImport(d);
+    if (msg) msg.textContent = ok ? "Backup importado ✓" : "El JSON pegado no es válido.";
+    return ok;
+  } catch (e) { if (msg) msg.textContent = "El JSON pegado no es válido."; return false; }
+};
+/* La importación de verdad: trabaja sobre el objeto, sin depender de que haya un
+   textarea en pantalla (el link de importación no pasa por el DOM). */
+function aplicarImport(d) {
+  try {
     if (!d || typeof d !== "object" || Array.isArray(d)) throw new Error("shape");
     // Backup de versiones viejas: migrar logs y descartar rutinas obsoletas
     if (!d.planV) {
@@ -3464,10 +3501,11 @@ window.doImport = () => {
         S.routines[k] = { dias };
       }
     });
+    EXCACHE = null;
     save(); render();
-    const m2 = $("#expmsg"); if (m2) m2.textContent = "Backup importado ✓";
-  } catch (e) { if (msg) msg.textContent = "El JSON pegado no es válido."; }
-};
+    return true;
+  } catch (e) { return false; }
+}
 
 render();
 
@@ -3475,6 +3513,15 @@ render();
    aparte: lo que el visitante tenga guardado no se lee ni se pisa. */
 async function abrirCompartido() {
   const h = String(location.hash || "");
+  if (h === "#informe") {
+    try { await abrirPublicado(); }
+    catch (e) {
+      document.getElementById("app").innerHTML =
+        '<div class="rep-bar"><span class="rep-bar-t">Informe</span></div>' +
+        '<div class="rep-shared">Todavía no hay un informe publicado en esta dirección.</div>';
+    }
+    return;
+  }
   if (h.indexOf("#r=") !== 0 && h.indexOf("#i=") !== 0) return;
   try {
     const d = await descomprimir(h.slice(3));
@@ -3498,8 +3545,10 @@ abrirCompartido();
 // pegar el link en una pestaña ya abierta solo cambia el hash: el script no se re-ejecuta
 window.addEventListener("hashchange", () => {
   const h = String(location.hash || "");
-  if (h.indexOf("#r=") === 0 || h.indexOf("#i=") === 0) location.reload();
+  if (h.indexOf("#r=") === 0 || h.indexOf("#i=") === 0 || h === "#informe") location.reload();
 });
+/* ¿Hay datos publicados? Solo para ofrecer el link corto; si no, no pasa nada. */
+fetch("datos.json", { method: "HEAD" }).then(r => { if (r.ok) { PUBLICADO = true; if (!INFORME && !PENDIMPORT) render(); } }).catch(() => {});
 </script>
 
 
