@@ -861,7 +861,7 @@ function compMenu(mc) {
 /* Entrada en calor por día — Movilidad → Activación → Preparación específica — con las observaciones
    de Martín. El Excel solo la detalla para el Mesociclo 1; los mesociclos 2 y 3 la replican
    (mismos ejercicios, ids propios por mesociclo). */
-function warmups(mc) {
+function warmupsV1(mc) {
   const p = "m" + mc;
   return {
     L: [
@@ -928,6 +928,79 @@ function warmups(mc) {
       ]}
     ]
   };
+}
+
+/* Plan 21-09 de Martín: la entrada en calor se reorganiza. Las semanas 1 y 2 se
+   entrenaron con la versión anterior y la conservan (es el historial real); la nueva
+   rige desde la semana 3. Los ejercicios que siguen mantienen su id, así su
+   historial continúa; los nuevos tienen id propio. */
+function warmupsV2(mc) {
+  const p = "m" + mc;
+  return {
+    L: [
+      { nombre: "Preparación articular", ejercicios: [
+        ex(p+"Lw1", "Tobillo (rodilla a pared)", "2 × 10 c/l", so("Mantener el talón apoyado.")),
+        ex(p+"Lw3", "Cadera 90/90", "2 × 8 c/l", so("Movimiento lento y controlado.")),
+        ex(p+"Lw4", "Rotación torácica", "2 × 8 c/l", so("Mantener la pelvis estable."))
+      ]},
+      { nombre: "Activación muscular", ejercicios: [
+        ex(p+"La1", "Monster Walk", "2 × 12 pasos", so("Mantener tensión constante en la banda.")),
+        ex(p+"La3", "Puente de glúteo", "2 × 10", so("Pausa de 2\" arriba.")),
+        ex(p+"La4", "Dead Bug", "2 × 8 c/l", so("Evitar arquear la zona lumbar.")),
+        ex(p+"La5", "Face Pull con banda", "2 × 12", so("Activar escápulas y mejorar la postura."))
+      ]},
+      { nombre: "Potenciación neural", ejercicios: [
+        ex(p+"Lp1", "Medicine Ball Chest Pass", "2 × 6", o("Máxima velocidad, sin fatiga.")),
+        ex(p+"Lp5", "Medicine Ball Scoop Toss", "2 × 6", o("Potencia desde el tronco y la cadera.")),
+        ex(p+"Lp3", "Farmer Walk", "2 × 15-20 m", o("Tronco estable, paso firme.")),
+        ex(p+"Lp4", "Sentadilla con peso corporal", "2 × 6", so("Hasta 60° de flexión, enfatizando la técnica y el control."))
+      ]}
+    ],
+    M: [
+      { nombre: "Preparación articular", ejercicios: [
+        ex(p+"Mw1", "Rodilla a pared", "2 × 10 c/l", so("Mejorar dorsiflexión.")),
+        ex(p+"Mw3", "Open Book", "2 × 8 c/l", so("Rotar el tronco manteniendo la pelvis estable.")),
+        ex(p+"Mw4", "Thread the Needle", "2 × 8 c/l", so("Rotación y estabilidad escapular."))
+      ]},
+      { nombre: "Activación muscular", ejercicios: [
+        ex(p+"Ma1", "Puente unilateral", "2 × 8 c/l", so("Activar glúteo y pelvis.")),
+        ex(p+"Ma6", "Band Pull Apart", "2 × 12", so("Activación escapular.")),
+        ex(p+"Ma2", "Dead Bug", "2 × 8 c/l", so("Activación de la musculatura estabilizadora."))
+      ]},
+      { nombre: "Preparación específica", ejercicios: [
+        ex(p+"Mp1", "Medicine Ball Chest Pass", "2 × 6", o("Máxima velocidad.")),
+        ex(p+"Mp5", "Medicine Ball Overhead Throw", "2 × 6", o("Transferencia al gesto deportivo."))
+      ]}
+    ],
+    V: [
+      { nombre: "Preparación articular", ejercicios: [
+        ex(p+"Vw1", "Rodilla a pared", "2 × 10 c/l", so("Mejorar dorsiflexión de tobillo.")),
+        ex(p+"Vw2", "Cadera 90/90", "2 × 8 c/l", so("Rotación de cadera y control.")),
+        ex(p+"Vw5", "Hip Flexor Stretch dinámico", "2 × 6", so("Mantener la pelvis en posición neutra."))
+      ]},
+      { nombre: "Activación muscular", ejercicios: [
+        ex(p+"Va1", "Monster Walk", "2 × 12 pasos", so("Activación del glúteo medio.")),
+        ex(p+"Va2", "Puente unilateral", "2 × 8 c/l", so("Control lumbo-pélvico.")),
+        ex(p+"Va4", "Face Pull con banda", "2 × 12", so("Activación escapular."))
+      ]},
+      { nombre: "Preparación específica", ejercicios: [
+        ex(p+"Vp1", "Pallof Press dinámico", "2 × 8 c/l", so("Control antirotacional.")),
+        ex(p+"Vp3", "March Carry (marcha unilateral con mancuerna)", "2 × 15-20 m c/l", o("Control de pelvis y equilibrio.")),
+        ex(p+"Vp5", "Scapular push up", "2 × 8", so("Evitar hundir la zona lumbar."))
+      ]}
+    ]
+  };
+}
+function warmups(mc, nuevo) { return nuevo ? warmupsV2(mc) : warmupsV1(mc); }
+
+/* Progresión metodológica de dominadas (plan 21-09): reemplaza a las dominadas
+   asistidas sueltas. Las asistidas conservan su id para no cortar su historial. */
+function domProg(pre, idAsistidas) {
+  return [
+    ex(pre + "de", "Dominadas escapulares", "2 × 6", so("Mantener los codos extendidos y realizar únicamente la depresión y retracción escapular.")),
+    ex(idAsistidas, "Dominadas asistidas", "3 × 4", o("Recorrido completo, sin balanceos. Mantener 1-2 repeticiones en reserva.")),
+    ex(pre + "dx", "Dominadas excéntricas", "2 × 3", so("Subir con ayuda de un cajón y descender de forma controlada durante 4-5 segundos."))
+  ];
 }
 
 const SEED = {
@@ -1089,13 +1162,13 @@ const DIAS_PLAN = {
            ex("p3-l4","Nordic asistido","3 × 5", so("Solo si no aumenta la molestia en la rodilla.")),
            ex("p3-l5","Gemelos","3 × 12", o("Control total del movimiento.")),
            ex("p3-l6","Spanish Squat","2 × 40\"", so("Mantener alrededor de 60° de flexión."))],
-       M: [ex("p3-m1","Landmine Press","4 × 6 c/l", o("Mayor carga, ejecución explosiva.")),
-           ex("p3-m2","Dominadas asistidas","4 × 5", o("Según tolerancia: asistidas, o 4 × 3 libres.")),
-           ex("p3-m3","Medicine Ball Rotacional","4 × 5 c/l", o("Máxima velocidad.")),
+       M: [ex("p3-m3","Medicine Ball Rotacional","4 × 5 c/l", o("Máxima velocidad.")),
+           ex("p3-m1","Landmine Press","4 × 6 c/l", o("Mayor carga, ejecución explosiva.")),
+           ...domProg("p3-m", "p3-m2"),
            ex("p3-m4","Medicine Ball Slam","3 × 6", o("Potencia sin impacto sobre la rodilla.")),
            ex("p3-m5","Pallof Press","3 × 8 c/l", o("Mayor tensión en el cable o banda."))],
        V: [ex("p3-v1","Press inclinado","4 × 8", o("Incrementar ligeramente la carga.")),
-           ex("p3-v2","Dominadas asistidas","4 × 5", o("Mantener técnica estricta.")),
+           ...domProg("p3-v", "p3-v2"),
            ex("p3-v3","Landmine Press unilateral","3 × 6 c/l", o("Máxima velocidad en la subida.")),
            ex("p3-v4","Medicine Ball Rotacional","3 × 6 c/l", o("Lanzamiento explosivo.")),
            ex("p3-v5","Pallof Press","3 × 8 c/l", o("Mayor tensión que semanas anteriores.")),
@@ -1106,11 +1179,10 @@ const DIAS_PLAN = {
            ex("p4-l3","Medicine Ball Throw","2 × 5 c/l", o("Máxima velocidad.")),
            ex("p4-l4","Gemelos","2 × 12", o("Trabajo ligero.")),
            ex("p4-l5","Spanish Squat","", so("Mantener alrededor de 60° de flexión."))],
-       M: [ex("p4-m1","Landmine Press","3 × 6 c/l", o("Velocidad máxima.")),
-           ex("p4-m2","Medicine Ball Rotacional","2 × 5 c/l", o("Calidad por encima del volumen.")),
-           ex("p4-m3","Dominadas asistidas","2 × 5", o("Sin llegar al fallo.")),
-           ex("p4-m4","Pallof Press","2 × 10 c/l", o("Control del tronco.")),
-           ex("p4-m5","Movilidad específica","5′", so("Cadera, tobillo y columna torácica."))],
+       M: [ex("p4-m2","Medicine Ball Rotacional","2 × 5 c/l", o("Calidad por encima del volumen.")),
+           ex("p4-m1","Landmine Press","3 × 6 c/l", o("Velocidad máxima.")),
+           ...domProg("p4-m", "p4-m3"),
+           ex("p4-m4","Pallof Press","2 × 10 c/l", o("Control del tronco."))],
        V: [ex("p4-v1","Press inclinado","2 × 8", o("Trabajo de mantenimiento.")),
            ex("p4-v2","Remo pecho apoyado","2 × 10", o("Técnica limpia.")),
            ex("p4-v3","Face Pull","2 × 15", o("Baja fatiga.")),
@@ -1181,6 +1253,26 @@ const NAT = [
       ["v", "Vuelta a la calma", "200 m suave", "200 m", ""]
     ] }
 ];
+const NAT_V2 = [
+  { id: "n1", nombre: "Martes · Natación 1", total: "1.100 m",
+    nota: "Sesión aeróbica de crawl — 1.100 m. Técnica primero, ritmo cómodo después.",
+    bloques: [
+      ["c", "Calentamiento", "200 m nado suave", "200 m", ""],
+      ["t", "Técnica", "4 × 50 m técnica", "200 m", "10-15\" entre series"],
+      ["a1", "Aeróbico", "2 × 150 m a ritmo cómodo", "300 m", "40-45\" entre series"],
+      ["a2", "Aeróbico continuo", "3 × 100 m ritmo medio", "300 m", "20-30\" entre series"],
+      ["v", "Vuelta a la calma", "100 m muy suave", "100 m", ""]
+    ] },
+  { id: "n2", nombre: "Jueves · Natación 2", total: "1.300 m",
+    nota: "Sesión de ritmo — 1.300 m. Más intensidad en el bloque principal.",
+    bloques: [
+      ["c", "Calentamiento", "100 m suave + 3 progresivas", "100 m", ""],
+      ["t", "Técnica", "4 × 50 m", "200 m", "30% · 60% · 90%"],
+      ["a1", "Bloque principal", "6 × 75 m ritmo medio-alto", "450 m", "20-30\" entre series · 3 regresivas"],
+      ["a2", "Bloque aeróbico", "3 × 150 m ritmo estable, con aletas o palas", "450 m", "30-45\" entre series · 90% · 60% · 30%"],
+      ["v", "Vuelta a la calma", "100 m suave", "100 m", ""]
+    ] }
+];
 function diaNatacion(cfg) {
   return {
     nombre: cfg.nombre,
@@ -1198,7 +1290,8 @@ function diaNatacion(cfg) {
   for (const w of MACRO) {
     const mc = w.n <= 4 ? 1 : w.n <= 8 ? 2 : 3;
     const p = DIAS_PLAN[w.n];
-    const wu = warmups(mc);
+    const nuevo = w.n >= 3;            // plan 21-09 desde la semana 3
+    const wu = warmups(mc, nuevo);
     const dia = (nombre, nota, warm, bloque) => ({
       nombre, nota,
       secciones: [...warm, { nombre: "Bloque principal", ejercicios: bloque }, compMenu(mc)]
@@ -1206,9 +1299,9 @@ function diaNatacion(cfg) {
     const wn = WU_NOTA[mc - 1] ? " " + WU_NOTA[mc - 1] : "";
     const dias = [
       dia(DIA_NOM[mc - 1][0], L_OBJ[mc - 1] + wn, wu.L, p.L),
-      diaNatacion(NAT[0]),
+      diaNatacion((nuevo ? NAT_V2 : NAT)[0]),
       dia(DIA_NOM[mc - 1][1], M_OBJ[mc - 1] + wn, wu.M, p.M),
-      diaNatacion(NAT[1]),
+      diaNatacion((nuevo ? NAT_V2 : NAT)[1]),
       dia(DIA_NOM[mc - 1][2], V_OBJ[mc - 1] + (p.vNota ? " " + p.vNota : "") + wn, wu.V, p.V)
     ];
     SEED.semanas.push(Object.assign({}, w, { meso: mc, dias }));
@@ -1264,7 +1357,7 @@ function emptyDay(nm) { return { nombre: nm, secciones: DEFAULT_SECTIONS.map(s =
 
 function freshState() {
   return {
-    tab: "plan", selWeek: 1, edit: false, planV: 9,
+    tab: "plan", selWeek: 1, edit: false, planV: 10,
     weekDone: {}, dayDone: {}, secDone: {}, selDay: {},
     routines: {}, compPick: {}, weekNotes: {}, dayNotes: {}, logs: {}, evals: {},
     comments: [], bodyLog: [], openHist: {}, seq: 1, lastBackupTs: 0
@@ -1478,6 +1571,19 @@ function migrateV9(st) {
   st.planV = 9;
   return st;
 }
+/* v9→v10: plan 21-09. Cada dispositivo guarda una copia de la rutina de cada semana
+   que visitó, así que sin esto seguiría viendo el plan viejo. Desde la semana 3 se
+   reemplaza por el plan nuevo; las semanas 1 y 2 no se tocan: son lo que se entrenó.
+   Los ejercicios que siguen conservan su id, así que lo anotado no se pierde. */
+function migrateV10(st) {
+  Object.keys(st.routines || {}).forEach(n => {
+    if (parseInt(n, 10) < 3) return;
+    const seed = SEED.semanas[n - 1];
+    if (seed && seed.dias) st.routines[n] = JSON.parse(JSON.stringify({ dias: seed.dias }));
+  });
+  st.planV = 10;
+  return st;
+}
 function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
@@ -1526,6 +1632,7 @@ function load() {
     if ((parsed.planV || 0) < 7) migrateV7(st);
     if ((parsed.planV || 0) < 8) migrateV8(st);
     if ((parsed.planV || 0) < 9) migrateV9(st);
+    if ((parsed.planV || 0) < 10) migrateV10(st);
     Object.keys(st.routines || {}).forEach(k => {
       const r = st.routines[k];
       if (Array.isArray(r)) {
@@ -2574,7 +2681,7 @@ window.toggleSec = sk => {
   ASK = null; save(); render();
 };
 /* Calentamiento completo: movilidad + activación + preparación específica de una */
-const SEC_CALENT = ["movilidad", "activaci", "preparaci"];
+const SEC_CALENT = ["movilidad", "activaci", "preparaci", "potenciaci"];
 window.doCalent = (n, di) => {
   const rout = routineFor(n);
   const day = rout.dias[di];
@@ -3609,6 +3716,7 @@ function aplicarImport(d) {
     if ((d.planV || 0) < 7) migrateV7(d);
     if ((d.planV || 0) < 8) migrateV8(d);
     if ((d.planV || 0) < 9) migrateV9(d);
+    if ((d.planV || 0) < 10) migrateV10(d);
     if ((d.planV || 0) < 6 && d.weekNotes) {
       d.dayNotes = d.dayNotes || {};
       Object.entries(d.weekNotes).forEach(([n, v]) => { if (v && String(v).trim()) d.dayNotes[n + "-0"] = String(v).trim(); });
