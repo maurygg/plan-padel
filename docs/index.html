@@ -1237,40 +1237,40 @@ const NAT = [
   { id: "n1", nombre: "Martes · Natación 1", total: "1.600 m",
     nota: "Sesión aeróbica de crawl — 1.600 m. Técnica primero, ritmo cómodo después.",
     bloques: [
-      ["c", "Calentamiento", "200 m nado suave", "200 m", ""],
-      ["t", "Técnica", "4 × 50 m técnica", "200 m", "10-15\" entre series"],
-      ["a1", "Aeróbico", "3 × 200 m a ritmo cómodo", "600 m", "30-45\" entre series"],
-      ["a2", "Aeróbico continuo", "4 × 100 m ritmo medio", "400 m", "20-30\" entre series"],
-      ["v", "Vuelta a la calma", "200 m muy suave", "200 m", ""]
+      ["c", "Calentamiento", "200 m nado suave", "200 m", "", ""],
+      ["t", "Técnica", "4 × 50 m técnica", "200 m", "10-15\" entre series", ""],
+      ["a1", "Aeróbico", "3 × 200 m a ritmo cómodo", "600 m", "30-45\" entre series", ""],
+      ["a2", "Aeróbico continuo", "4 × 100 m ritmo medio", "400 m", "20-30\" entre series", ""],
+      ["v", "Vuelta a la calma", "200 m muy suave", "200 m", "", ""]
     ] },
   { id: "n2", nombre: "Jueves · Natación 2", total: "1.800 m",
     nota: "Sesión de ritmo — 1.800 m. Más intensidad en el bloque principal.",
     bloques: [
-      ["c", "Calentamiento", "200 m suave + 4 progresivas", "200 m", ""],
-      ["t", "Técnica", "4 × 50 m", "200 m", "30% · 60% · 90%"],
-      ["a1", "Bloque principal", "8 × 75 m ritmo medio-alto", "600 m", "20-30\" entre series · 4 regresivas"],
-      ["a2", "Bloque aeróbico", "4 × 150 m ritmo estable", "600 m", "30-45\" entre series · 90% · 60% · 30%"],
-      ["v", "Vuelta a la calma", "200 m suave", "200 m", ""]
+      ["c", "Calentamiento", "200 m suave", "200 m", "", "4 progresivas."],
+      ["t", "Técnica", "4 × 50 m", "200 m", "", "Progresión de intensidad: 30% · 60% · 90%."],
+      ["a1", "Bloque principal", "8 × 75 m ritmo medio-alto", "600 m", "20-30\" entre series", "4 regresivas."],
+      ["a2", "Bloque aeróbico", "4 × 150 m ritmo estable", "600 m", "30-45\" entre series", "Intensidad 90% · 60% · 30%."],
+      ["v", "Vuelta a la calma", "200 m suave", "200 m", "", ""]
     ] }
 ];
 const NAT_V2 = [
   { id: "n1", nombre: "Martes · Natación 1", total: "1.100 m",
     nota: "Sesión aeróbica de crawl — 1.100 m. Técnica primero, ritmo cómodo después.",
     bloques: [
-      ["c", "Calentamiento", "200 m nado suave", "200 m", ""],
-      ["t", "Técnica", "4 × 50 m técnica", "200 m", "10-15\" entre series"],
-      ["a1", "Aeróbico", "2 × 150 m a ritmo cómodo", "300 m", "40-45\" entre series"],
-      ["a2", "Aeróbico continuo", "3 × 100 m ritmo medio", "300 m", "20-30\" entre series"],
-      ["v", "Vuelta a la calma", "100 m muy suave", "100 m", ""]
+      ["c", "Calentamiento", "200 m nado suave", "200 m", "", ""],
+      ["t", "Técnica", "4 × 50 m técnica", "200 m", "10-15\" entre series", ""],
+      ["a1", "Aeróbico", "2 × 150 m a ritmo cómodo", "300 m", "40-45\" entre series", ""],
+      ["a2", "Aeróbico continuo", "3 × 100 m ritmo medio", "300 m", "20-30\" entre series", ""],
+      ["v", "Vuelta a la calma", "100 m muy suave", "100 m", "", ""]
     ] },
   { id: "n2", nombre: "Jueves · Natación 2", total: "1.300 m",
     nota: "Sesión de ritmo — 1.300 m. Más intensidad en el bloque principal.",
     bloques: [
-      ["c", "Calentamiento", "100 m suave + 3 progresivas", "100 m", ""],
-      ["t", "Técnica", "4 × 50 m", "200 m", "30% · 60% · 90%"],
-      ["a1", "Bloque principal", "6 × 75 m ritmo medio-alto", "450 m", "20-30\" entre series · 3 regresivas"],
-      ["a2", "Bloque aeróbico", "3 × 150 m ritmo estable, con aletas o palas", "450 m", "30-45\" entre series · 90% · 60% · 30%"],
-      ["v", "Vuelta a la calma", "100 m suave", "100 m", ""]
+      ["c", "Calentamiento", "100 m suave", "100 m", "", "3 progresivas."],
+      ["t", "Técnica", "4 × 50 m", "200 m", "", "Progresión de intensidad: 30% · 60% · 90%."],
+      ["a1", "Bloque principal", "6 × 75 m ritmo medio-alto", "450 m", "20-30\" entre series", "3 regresivas."],
+      ["a2", "Bloque aeróbico", "3 × 150 m ritmo estable", "450 m", "30-45\" entre series", "Con aletas o palas. Intensidad 90% · 60% · 30%."],
+      ["v", "Vuelta a la calma", "100 m suave", "100 m", "", ""]
     ] }
 ];
 function diaNatacion(cfg) {
@@ -1280,7 +1280,9 @@ function diaNatacion(cfg) {
     secciones: [
       { nombre: "Sesión", ejercicios: cfg.bloques.map(b =>
           ex(cfg.id + "-" + b[0], b[1] + " · " + b[2], b[3],
-             Object.assign({ sinPeso: true }, b[4] ? { descanso: b[4] } : {}))) },
+             Object.assign({ sinPeso: true },
+               b[4] ? { descanso: b[4] } : {},
+               b[5] ? { obs: b[5] } : {}))) },
       { nombre: "Técnica de brazada", ejercicios: NAT_DRILLS.map((d, i) =>
           ex(cfg.id + "-d" + i, d[0], "", { sinPeso: true, link: d[1], obs: d[2] })) }
     ]
@@ -2228,9 +2230,9 @@ function exCard(exo, pos) {
   if (exo.sinPeso && !S.edit) {
     return `
       <div class="ex-slim-wrap ${obsOpen ? "obs-on" : ""}" data-id="${esc(exo.id)}">
-      <div class="ex-slim ${doneHoy ? "done" : ""}">
+      <div class="ex-slim ${doneHoy ? "done" : ""} ${exo.descanso ? "hasub" : ""}">
         <button class="stick ${doneHoy ? "done" : ""}" onclick="addDone('${esc(exo.id)}')" aria-label="${doneHoy ? "Hecho hoy" : "Marcar hecho"}">✓</button>
-        <span class="sname">${esc(exo.nombre)}</span>
+        <span class="sname">${esc(exo.nombre)}${exo.descanso ? `<span class="ssub">↺ ${esc(exo.descanso)}</span>` : ""}</span>
         ${exo.esquema ? `<span class="sscheme">${esc(exo.esquema)}</span>` : ""}
         ${ibtn}
         ${slink}
