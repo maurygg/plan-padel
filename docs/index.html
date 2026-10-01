@@ -729,6 +729,20 @@
     background: var(--surface-2); color: var(--muted); font-size: 12px; cursor: pointer; line-height: 1; padding: 0; }
   .card.notesaved { background: color-mix(in srgb, var(--sage) 18%, var(--surface)); border-left: 3px solid var(--green-soft); }
   .card.notesaved p { font-size: 13.5px; line-height: 1.5; white-space: pre-wrap; }
+  .daytab.xtab { border-style: dashed; }
+  .daytab.xtab.active { border-style: solid; }
+  .xrepl { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 2px 10px;
+    padding: 9px 12px; border-radius: 10px; font-size: 13px; background: var(--gold-bg); border-left: 3px solid var(--gold); }
+  .xcard { border-top: 4px solid var(--gold); }
+  .xtop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14.5px; }
+  .xmeta { margin: 6px 0 0; font-size: 13px; color: var(--ink); }
+  .xrep { margin: 4px 0 0; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .xrep.on { color: var(--gold); }
+  .xnota { margin: 6px 0 0; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+  .xform { border-top: 4px solid var(--gold); }
+  .xform .evhead { color: var(--gold); }
+  .rep-ses.xses .ok { color: var(--gold); }
+  .sscheme .rpe, .ex-scheme .rpe { display: block; text-align: right; font-size: 9.5px; letter-spacing: .06em; color: var(--gold); margin-top: 2px; }
 </style>
 
 </head>
@@ -853,7 +867,7 @@ function compMenu(mc) {
       ex(p+"21", "Hip Airplane", "2 × 8 c/l", SP),
       ex(p+"22", "Abducción en polea", "3 × 8 c/l"),
       ex(p+"23", "Puente unilateral de glúteo", "3 × 10 c/l", SP)
-    ].concat(mc > 1 ? [ex(p+"24", "RDL unilateral", "2 × 8 c/l")] : []) }
+    ].concat(mc > 2 ? [ex(p+"24", "RDL unilateral", "2 × 8 c/l")] : []) }   // el M2 (plan 01-10) no lo trae
   ];
   return { nombre: "Complementarios", menu: true, grupos, ejercicios: grupos.flatMap(g => g.ejercicios) };
 }
@@ -978,13 +992,14 @@ function warmupsV2(mc) {
         ex(p+"Vw2", "Cadera 90/90", "2 × 8 c/l", so("Rotación de cadera y control.")),
         ex(p+"Vw5", "Hip Flexor Stretch dinámico", "2 × 6", so("Mantener la pelvis en posición neutra."))
       ]},
+      // plan 01-10: Scapular Wall Slide reemplaza al Face Pull con banda y Bird Dog al Pallof dinámico
       { nombre: "Activación muscular", ejercicios: [
         ex(p+"Va1", "Monster Walk", "2 × 12 pasos", so("Activación del glúteo medio.")),
         ex(p+"Va2", "Puente unilateral", "2 × 8 c/l", so("Control lumbo-pélvico.")),
-        ex(p+"Va4", "Face Pull con banda", "2 × 12", so("Activación escapular."))
+        ex(p+"Va6", "Scapular Wall Slide", "2 × 10", so("Mantener el contacto de brazos y espalda con la pared."))
       ]},
       { nombre: "Preparación específica", ejercicios: [
-        ex(p+"Vp1", "Pallof Press dinámico", "2 × 8 c/l", so("Control antirotacional.")),
+        ex(p+"Vp6", "Bird Dog", "2 × 8 c/l", so("Mantener la pelvis estable durante toda la extensión.")),
         ex(p+"Vp3", "March Carry (marcha unilateral con mancuerna)", "2 × 15-20 m c/l", o("Control de pelvis y equilibrio.")),
         ex(p+"Vp5", "Scapular push up", "2 × 8", so("Evitar hundir la zona lumbar."))
       ]}
@@ -1039,8 +1054,8 @@ const SEED = {
   ],
   mesociclos: [
     { n: 1, semanas: [1,2,3,4],    nombre: "Base estructural y capacidad de carga", objetivo: "Desarrollar una base de fuerza, estabilidad y control neuromuscular, optimizando la capacidad de carga de la articulación patelofemoral con ejercicios que respeten los rangos tolerados y minimicen la irritación articular." },
-    { n: 2, semanas: [5,6,7,8],    nombre: "Fuerza específica y desaceleración", objetivo: "Desarrollar fuerza específica, movilidad y capacidad de desaceleración." },
-    { n: 3, semanas: [9,10,11,12], nombre: "Aplicación y preparación competitiva", objetivo: "Maximizar la aplicación de las capacidades desarrolladas en situaciones específicas de pádel, optimizando velocidad, reactividad y preparación competitiva." }
+    { n: 2, semanas: [5,6,7,8],    nombre: "Desarrollo de la fuerza y transferencia de potencia", objetivo: "Desarrollar fuerza específica y capacidad de producir fuerza rápidamente, progresando hacia una mayor estabilidad dinámica y tolerancia a estímulos reactivos. Descansos: fuerza principal 2-3′ · fuerza secundaria 90-120″ · potencia 60-90″ · isométricos y core 45-60″ · accesorios 60-90″." },
+    { n: 3, semanas: [9,10,11,12], nombre: "Expresión de fuerza y potencia específica", objetivo: "Maximizar la aplicación de las capacidades desarrolladas en situaciones específicas de pádel, optimizando velocidad, reactividad y preparación competitiva." }
   ],
   fases: {
     "Acumulación": "Se priorizan la fuerza, la movilidad, la estabilidad, la resistencia específica y el aprendizaje técnico de los patrones de movimiento.",
@@ -1104,19 +1119,25 @@ const MACRO = [
 /* Nombre y objetivo de cada día, por mesociclo (hojas Mesociclo 1/2/3) */
 const DIA_NOM = [
   ["Lunes · Tren inferior", "Miércoles · Tren superior y core", "Viernes · Complementario y prevención"],
-  ["Lunes · Fuerza", "Miércoles · Potencia", "Viernes · Coordinación y velocidad"],
+  ["Lunes · Fuerza del tren inferior", "Miércoles · Tren superior y potencia rotacional", "Viernes · Fuerza complementaria y prevención"],
   ["Lunes · Fuerza específica", "Miércoles · Potencia específica", "Viernes · Integración al juego"]
 ];
 const L_OBJ = ["Fuerza máxima y estabilidad del tren inferior — desarrollar la fuerza máxima mejorando la estabilidad de la rodilla y la tolerancia a la carga.",
-               "Fuerza máxima + fuerza específica — mantener y potenciar la fuerza, introduciendo contrastes para producir potencia.",
+               "Fuerza del tren inferior + capacidad de producir fuerza — niveles altos de fuerza, con especial atención a la tolerancia de la rodilla y a la capacidad unilateral.",
                "Fuerza específica y mantenimiento neuromuscular — desarrollar la capacidad de producir fuerza."];
 const M_OBJ = ["Fuerza del tren superior y core — estabilidad escapular y control del core, con transferencia al rendimiento deportivo.",
-               "Fuerza dinámica + potencia + transferencia — velocidad de aplicación de la fuerza, aceleración, reactividad y transferencia al gesto del pádel.",
+               "Fuerza del tren superior + potencia rotacional — transmitir fuerzas a través del tronco, sobre todo en acciones unilaterales y rotacionales.",
                "Potencia específica y velocidad de movimiento — conversión de la fuerza en potencia."];
 const V_OBJ = ["Fortalecimiento complementario y prevención — reforzar las estructuras implicadas en la prevención de lesiones: fuerza, estabilidad y control postural.",
-               "Coordinación + velocidad + prevención — integrar las capacidades de la semana con coordinación, velocidad, cambios de dirección y prevención, aplicadas a la pista.",
+               "Fuerza complementaria + prevención + potencia y reactividad — completar el trabajo del lunes y el miércoles con la musculatura y las capacidades que recibieron menos estímulo en la semana.",
                "Integración al juego y preparación competitiva — desplazamiento, reacción, coordinación y toma de decisiones, simulando las demandas de la competición."];
-const WU_NOTA = ["", "Entrada en calor: la del Mesociclo 1 (Martín no la cambió).", "Entrada en calor: la del Mesociclo 1 (Martín no la cambió)."];
+const WU_NOTA = ["", "", "Entrada en calor: la del Mesociclo 2 (Martín no la detalló para el 3)."];
+
+/* Mesociclo 2: ejercicio con RPE objetivo y descanso de su categoría */
+const D_FP = "2-3 min", D_FS = "90-120\"", D_POT = "60-90\"", D_ISO = "45-60\"", D_ACC = "60-90\"";
+function m2(id, nombre, esquema, rpe, obs, descanso, sinPeso) {
+  return ex(id, nombre, esquema, Object.assign({ rpe, descanso }, obs ? { obs } : {}, sinPeso ? { sinPeso: true } : {}));
+}
 
 /* Bloque principal por semana (hojas Mesociclo 1/2/3). Mesociclo 1 con las observaciones de Martín → ⓘ */
 const DIAS_PLAN = {
@@ -1140,7 +1161,7 @@ const DIAS_PLAN = {
        vNota: "" },
   2: { L: [ex("p2-l1","Sentadilla Frontal","4 × 6", o("Limitar el descenso a ≈60° de flexión. Tempo 3-1-1: 3 s de bajada, 1 s de pausa, subida controlada y potente.")),
            ex("p2-l2","RDL unilateral","3 × 8 c/l", o("Priorizar la bisagra de cadera. Rodilla ligeramente flexionada (15-20°).")),
-           ex("p2-l3","Hip Thrust unilateral","", o("Pausa de 1\" arriba y descenso controlado.")),
+           ex("p2-l3","Hip Thrust unilateral","3 × 8 c/l", o("Pausa de 1\" arriba y descenso controlado.")),
            ex("p2-l4","Step Up bajo (15-20 cm)","3 × 8 c/l", o("Subir controlado. Evitar impulso de la pierna contraria.")),
            ex("p2-l5","Gemelos","3 × 15", o("Recorrido completo.")),
            ex("p2-l6","TKE con banda","2 × 15 c/l", so("Trabajar el rango entre 90° y 45° de flexión, sin llegar a la extensión completa si provoca dolor."))],
@@ -1167,45 +1188,111 @@ const DIAS_PLAN = {
            ...domProg("p3-m", "p3-m2"),
            ex("p3-m4","Medicine Ball Slam","3 × 6", o("Potencia sin impacto sobre la rodilla.")),
            ex("p3-m5","Pallof Press","3 × 8 c/l", o("Mayor tensión en el cable o banda."))],
-       V: [ex("p3-v1","Press inclinado","4 × 8", o("Incrementar ligeramente la carga.")),
-           ...domProg("p3-v", "p3-v2"),
-           ex("p3-v3","Landmine Press unilateral","3 × 6 c/l", o("Máxima velocidad en la subida.")),
-           ex("p3-v4","Medicine Ball Rotacional","3 × 6 c/l", o("Lanzamiento explosivo.")),
-           ex("p3-v5","Pallof Press","3 × 8 c/l", o("Mayor tensión que semanas anteriores.")),
+       V: [ex("p3-v1","Press inclinado con mancuernas","4 × 8", o("Incrementar ligeramente la carga.")),
+           ex("p3-v7","Remo pecho apoyado","4 × 8", o("Control escapular durante todo el recorrido.")),
+           ex("p3-v8","Face Pull","3 × 15", o("Pausa de 1 segundo al final.")),
+           ex("p3-v9","Copenhagen Plank","3 × 20\" c/l", so("Mantener alineación corporal.")),
+           ex("p3-v10","Suitcase Carry","3 × 20 m c/l", o("Evitar inclinación del tronco.")),
            ex("p3-v6","Spanish Squat","3 × 40\"", so("Solo si no aumenta el dolor."))],
        vNota: "" },
   4: { L: [ex("p4-l1","Trap Bar Deadlift","3 × 4", o("75-80% de la carga habitual. Velocidad máxima.")),
            ex("p4-l2","Hip Thrust","2 × 6", o("Mantener estímulo sin fatigar.")),
            ex("p4-l3","Medicine Ball Throw","2 × 5 c/l", o("Máxima velocidad.")),
            ex("p4-l4","Gemelos","2 × 12", o("Trabajo ligero.")),
-           ex("p4-l5","Spanish Squat","", so("Mantener alrededor de 60° de flexión."))],
+           ex("p4-l5","Spanish Squat","2 × 30-40\"", so("Mantener alrededor de 60° de flexión."))],
        M: [ex("p4-m2","Medicine Ball Rotacional","2 × 5 c/l", o("Calidad por encima del volumen.")),
            ex("p4-m1","Landmine Press","3 × 6 c/l", o("Velocidad máxima.")),
            ...domProg("p4-m", "p4-m3"),
            ex("p4-m4","Pallof Press","2 × 10 c/l", o("Control del tronco."))],
-       V: [ex("p4-v1","Press inclinado","2 × 8", o("Trabajo de mantenimiento.")),
-           ex("p4-v2","Remo pecho apoyado","2 × 10", o("Técnica limpia.")),
+       V: [ex("p4-v1","Press inclinado con mancuernas","3 × 6", o("Trabajo de mantenimiento.")),
+           ex("p4-v2","Remo pecho apoyado","3 × 8", o("Técnica limpia.")),
+           ex("p4-v7","Remo unilateral en polea","3 × 10 c/l", o("Control postural.")),
            ex("p4-v3","Face Pull","2 × 15", o("Baja fatiga.")),
-           ex("p4-v4","Pallof Press","2 × 10 c/l", o("Control postural.")),
-           ex("p4-v5","Copenhagen Plank","2 × 30\" c/l", so("Mantener alineación corporal.")),
-           ex("p4-v6","Movilidad específica","5′", so("Cadera, tobillo e isquiotibiales."))],
+           ex("p4-v5","Copenhagen Plank","3 × 30\" c/l", so("Mantener alineación corporal."))],
        vNota: "Semana de reevaluación — descarga." },
-  5: { L: [ex("p5-l1","Trap Bar Deadlift","4 × 4"), ex("p5-l2","RFESS","3 × 6 c/l"), ex("p5-l3","Hip Thrust","3 × 6"), ex("p5-l4","Trap Bar Jump","3 × 4",SP), ex("p5-l5","Gemelos","3 × 15")],
-       M: [ex("p5-m1","Pogos","3 × 10",SP), ex("p5-m2","Skater Jump","3 × 8 c/l",SP), ex("p5-m3","Landmine Press","4 × 6"), ex("p5-m4","Dominadas","4 × 5"), ex("p5-m5","Medicine Ball Rotacional","4 × 6 c/l"), ex("p5-m6","Sprint 10 m","6 reps",SP)],
-       V: [ex("p5-v1","Escalera","",SP), ex("p5-v2","COD","4 reps",SP), ex("p5-v3","Sprint reacción","4 reps",SP), ex("p5-v4","Monster Walk","3 × 12″",SP), ex("p5-v5","Spanish Squat","2 × 20″",SP), ex("p5-v6","Rotadores","",SP)],
-       vNota: "Formato circuito · 4 vueltas." },
-  6: { L: [ex("p6-l1","Trap Bar","5 × 4"), ex("p6-l2","RFESS","4 × 6"), ex("p6-l3","Hip Thrust","4 × 6"), ex("p6-l4","Broad Jump","4 × 3",SP), ex("p6-l5","Gemelos","3 × 15")],
-       M: [ex("p6-m1","Depth Jump","3 × 5",SP), ex("p6-m2","Landmine Press","4 × 6"), ex("p6-m3","Dominadas lastradas","4 × 5"), ex("p6-m4","Medicine Ball Throw","4 × 6"), ex("p6-m5","Sprint 10 m","8 reps",SP), ex("p6-m6","Rotaciones","",SP)],
-       V: [ex("p6-v1","Escalera","",SP), ex("p6-v2","COD","4 reps",SP), ex("p6-v3","Shuffle lateral","2 × 10 m",SP), ex("p6-v4","Reaction Drill","20″",SP), ex("p6-v5","Spanish Squat","2 × 20″",SP), ex("p6-v6","Rotadores","",SP)],
-       vNota: "Formato circuito · 4 vueltas." },
-  7: { L: [ex("p7-l1","Trap Bar","5 × 3"), ex("p7-l2","Hip Thrust","3 × 5"), ex("p7-l3","RFESS","3 × 5"), ex("p7-l4","Broad Jump","3 × 4",SP), ex("p7-l5","Nordic","3 × 5",SP)],
-       M: [ex("p7-m1","Pogos reactivos","3 × 10",SP), ex("p7-m2","Depth Jump","3 × 4",SP), ex("p7-m3","Medicine Ball Rotacional","3 × 5"), ex("p7-m4","Landmine Press","3 × 5"), ex("p7-m5","Sprint 10 m","6 reps",SP), ex("p7-m6","Saltos al cajón","3 × 6",SP)],
-       V: [ex("p7-v1","RSA","5 × 20 m (10 ida + 10 vuelta)",SP), ex("p7-v2","Reaction Drill","3 × 20″",SP), ex("p7-v3","COD","4 reps",SP), ex("p7-v4","Shuffle lateral","2 × 10 m",SP), ex("p7-v5","Crossover","2 × 8 m c/l",SP), ex("p7-v6","Drop Step","2 × 8 m c/l",SP), ex("p7-v7","Sprint reacción","4 reps",SP)],
-       vNota: "Formato circuito." },
-  8: { L: [ex("p8-l1","Trap Bar","2 × 3 al 80%"), ex("p8-l2","Broad Jump","3 × 3",SP), ex("p8-l3","Sprint 5 m","4 reps",SP), ex("p8-l4","Medicine Ball Throw","2 × 5")],
-       M: [ex("p8-m1","Pogos","2 × 10",SP), ex("p8-m2","Skater Jump","2 × 5",SP), ex("p8-m3","Landmine Press","2 × 5"), ex("p8-m4","Medicine Ball","2 × 5"), ex("p8-m5","Sprint reacción","4 reps",SP)],
-       V: [ex("p8-v1","Solo activación","20-30′",SP), ex("p8-v2","Escalera","",SP), ex("p8-v3","Pogos","",SP), ex("p8-v4","Sprint","",SP), ex("p8-v5","Movilidad","",SP), ex("p8-v6","Bandas","",SP)],
-       vNota: "Semana de reevaluación — solo activación." },
+  /* Mesociclo 2 — plan 01-10 de Martín. Cada ejercicio trae el RPE objetivo y el descanso
+     de su categoría (fuerza principal 2-3′, secundaria 90-120″, potencia 60-90″,
+     isométricos y core 45-60″, accesorios 60-90″). La categoría de cada uno la asignó
+     la app según la tabla de Martín: él no la marcó ejercicio por ejercicio. */
+  5: { L: [m2("p5-l1","Countermovement Jump","3 × 4","5-6","Priorizar calidad.",D_POT,1),
+           m2("p5-l2","Trap Bar Deadlift","4 × 4","7","Partir de 100 kg como referencia del M1. Si 100 kg queda en RPE ≤ 6,5, probar 105 kg. Máxima intención concéntrica.",D_FP),
+           m2("p5-l3","RFESS (búlgara)","3 × 6 c/l","7","Profundidad ≈60°. Tibia relativamente vertical. Excéntrica de 2-3″.",D_FS),
+           m2("p5-l4","Hip Thrust","3 × 6","7","Referencia del M1: 145 kg. Pausa de 1″ arriba. No buscar el fallo.",D_FS),
+           m2("p5-l5","Gemelos","3 × 15","7","Control completo.",D_ACC),
+           m2("p5-l6","Spanish Squat","2 × 40\"","6-7","Isométrico. Sin buscar fatiga excesiva.",D_ISO,1)],
+       M: [m2("p5-m1","Medicine Ball Rotacional","3 × 6 c/l","6","Máxima velocidad.",D_POT),
+           m2("p5-m2","Press Banca","4 × 6","7","Primera semana: establecer la carga. Sin llegar al fallo.",D_FP),
+           m2("p5-m3","Landmine Press","4 × 6 c/l","7","De pie. Explosivo al subir.",D_FS),
+           m2("p5-m4","Dominadas asistidas","4 × 5","7","Partir de 40 kg de asistencia.",D_FS),
+           m2("p5-m5","Pallof Press","3 × 8 c/l","6","Control total del tronco.",D_ISO),
+           m2("p5-m6","Face Pull","2 × 12","6","Complementario, no buscar fatiga.",D_ACC)],
+       V: [m2("p5-v1","Pogos","3 × 8","5-6","Baja amplitud. Contacto rápido.",D_POT,1),
+           m2("p5-v2","Skater Jump controlado","2 × 5 c/l","6","Prioridad al aterrizaje y la estabilización, no a la distancia máxima.",D_POT,1),
+           m2("p5-v3","Press inclinado con mancuernas","3 × 8","7","Mantener el estímulo de fuerza del M1.",D_FS),
+           m2("p5-v4","Remo pecho apoyado","3 × 8","7","Control escapular.",D_FS),
+           m2("p5-v5","Face Pull","3 × 12","6-7","No llegar al fallo.",D_ACC),
+           m2("p5-v6","Copenhagen Plank","3 × 25\" c/l","7","Control pélvico.",D_ISO,1),
+           m2("p5-v7","Suitcase Carry","3 × 15 m c/l","7","Tronco estable.",D_ISO)],
+       vNota: "" },
+  6: { L: [m2("p6-l1","Broad Jump","3 × 3","6","Máxima calidad.","90\"",1),
+           m2("p6-l2","Trap Bar Deadlift","5 × 4","7-7,5","+2,5-5% respecto de la semana 5 si el RPE lo permite.",D_FP),
+           m2("p6-l3","RFESS (búlgara)","4 × 6 c/l","7-7,5","Mantener el rango tolerado.",D_FS),
+           m2("p6-l4","Hip Thrust","4 × 6","7-7,5","Progresar 2,5-5% si la semana 5 quedó en RPE ≤ 7.",D_FS),
+           m2("p6-l5","Gemelos","3 × 15","7","Control completo.",D_ACC),
+           m2("p6-l6","Spanish Squat","2 × 40\"","6-7","Isométrico. Sin buscar fatiga excesiva.",D_ISO,1)],
+       M: [m2("p6-m1","Medicine Ball Throw","4 × 6","6","Explosivo.",D_POT),
+           m2("p6-m2","Countermovement Jump","3 × 4","5-6","Priorizar calidad.",D_POT,1),
+           m2("p6-m3","Press Banca","4 × 5","7-7,5","Subir la carga respecto de la semana 5 si la técnica es estable.",D_FP),
+           m2("p6-m4","Landmine Press","4 × 6 c/l","7-7,5","35 kg. Mantener y progresar según RPE.",D_FS),
+           m2("p6-m5","Dominadas asistidas","4 × 4","7-7,5","Intentar bajar un poco la asistencia si la semana 5 fue cómoda. Si no, repetir 2 ejercicios de la progresión metodológica, 2 × 4 cada uno.",D_FS),
+           m2("p6-m6","Pallof Press","3 × 8 c/l","6","",D_ISO)],
+       V: [m2("p6-v1","Skater Jump","3 × 5 c/l","6","Priorizar el control.",D_POT,1),
+           m2("p6-v2","Press militar unilateral","3 × 8 c/l","7","Empuje vertical controlado.",D_FS),
+           m2("p6-v3","Remo con mancuerna unilateral","3 × 8 c/l","7","Controlar la escápula y evitar rotar el tronco durante el tirón.",D_FS),
+           m2("p6-v4","Face Pull","3 × 15","6","Movimiento controlado.",D_ACC),
+           m2("p6-v5","Suitcase Carry","3 × 15 m","7","Caminar erguido, sin inclinar el tronco hacia un lado.",D_ISO),
+           m2("p6-v6","Copenhagen Plank","3 × 25\" c/l","7","Pelvis alineada y tensión constante en los aductores.",D_ISO,1),
+           m2("p6-v7","Pallof Press","2 × 10 c/l","6","Evitar rotar el tronco y mantener la pelvis estable toda la serie.",D_ISO)],
+       vNota: "" },
+  7: { L: [m2("p7-l1","Trap Bar Jump","3 × 3","6","Carga ligera: ≈15-20% de la del Trap Bar Deadlift. Máxima velocidad. Cortar si baja la calidad.",D_POT),
+           m2("p7-l2","Trap Bar Deadlift","5 × 3","7,5-8","Carga alta, sin fallo. Máxima intención.",D_FP),
+           m2("p7-l3","Hip Thrust","3 × 5","7,5-8","Pesado, pausa arriba.",D_FS),
+           m2("p7-l4","RFESS (búlgara)","3 × 5 c/l","7,5","Mantener el rango.",D_FS),
+           m2("p7-l5","Nordic asistido","3 × 5","7","Progresar el control excéntrico, no forzar el rango.",D_FS,1),
+           m2("p7-l6","Gemelos","3 × 12","7","",D_ACC)],
+       M: [m2("p7-m1","Pogos reactivos","3 × 8","6","Solo si las semanas 5 y 6 se toleraron bien.",D_POT,1),
+           m2("p7-m2","Box Jump","3 × 3","6","Aterrizaje controlado.",D_POT,1),
+           m2("p7-m3","Press Banca","4 × 4","7,5-8","Carga alta, técnica limpia.",D_FP),
+           m2("p7-m4","Medicine Ball Rotacional","3 × 5 c/l","6","Máxima velocidad.",D_POT),
+           m2("p7-m5","Landmine Press","3 × 5 c/l","7,5","Explosivo.",D_FS),
+           m2("p7-m6","Dominadas asistidas","4 × 4","7,5","Si corresponde, bajar la asistencia. Si no, repetir 2 ejercicios de la progresión, 2 × 4 cada uno.",D_FS)],
+       V: [m2("p7-v1","Pogos reactivos","2 × 8","6","Solo si la rodilla responde bien.",D_POT,1),
+           m2("p7-v2","Press inclinado con mancuernas","4 × 8","7-7,5","Controlar 2″ la fase excéntrica.",D_FS),
+           m2("p7-v3","Remo pecho apoyado","4 × 8","7-7,5","Mantener el pecho apoyado.",D_FS),
+           m2("p7-v4","Face Pull","3 × 15","6","Sin compensaciones cervicales ni lumbares.",D_ACC),
+           m2("p7-v5","Copenhagen Plank","3 × 30\"","7","Pelvis elevada y alineada durante toda la serie.",D_ISO,1),
+           m2("p7-v6","Suitcase Carry","3 × 15 m","7","Marcha controlada, tronco vertical, sin inclinarse.",D_ISO),
+           m2("p7-v7","Pallof Press","2 × 8 c/l","6","Resistir la rotación y mantener la pelvis estable.",D_ISO)],
+       vNota: "" },
+  8: { L: [m2("p8-l1","Broad Jump","3 × 3","5-6","Máxima calidad.",D_POT,1),
+           m2("p8-l2","Trap Bar Deadlift","3 × 3","6-7","75-80%. Máxima velocidad.",D_FP),
+           m2("p8-l3","RFESS (búlgara)","2 × 5 c/l","6","Control.",D_FS),
+           m2("p8-l4","Medicine Ball Throw","2 × 5","5-6","Máxima velocidad.",D_POT),
+           m2("p8-l5","Step-up + Knee Drive","3 × 6 c/l","6","Subir de forma controlada.",D_ACC),
+           m2("p8-l6","Spanish Squat","2 × 30\"","5-6","",D_ISO,1)],
+       M: [m2("p8-m1","Pogos","2 × 8","5","Calidad.",D_POT,1),
+           m2("p8-m2","Box Jump bajo","2 × 3","5-6","Despegue explosivo, aterrizaje estable y descenso caminando.",D_POT,1),
+           m2("p8-m3","Press Banca","3 × 5","6-7","Mantener la fuerza.",D_FP),
+           m2("p8-m4","Landmine Press","2 × 5 c/l","6","Máxima intención.",D_FS),
+           m2("p8-m5","Dominadas asistidas","3 × 4","6-7","Sin fatiga.",D_FS),
+           m2("p8-m6","Medicine Ball Rotacional","2 × 5 c/l","5-6","Máxima velocidad.",D_POT)],
+       V: [m2("p8-v1","Skater Jump","2 × 5 c/l","5-6","Aterrizaje estable y controlado.",D_POT,1),
+           m2("p8-v2","Press inclinado con mancuernas","3 × 6","6-7","Carga moderada, sin llegar al fallo.",D_FS),
+           m2("p8-v3","Remo pecho apoyado","3 × 8","6-7","Controlar la fase excéntrica.",D_FS),
+           m2("p8-v4","Face Pull","2 × 15","5-6","Movimiento fluido y controlado.",D_ACC),
+           m2("p8-v5","Copenhagen Plank","2 × 30\"","6","Pelvis alineada.",D_ISO,1),
+           m2("p8-v6","Suitcase Carry","2 × 20 m c/l","6","Tronco erguido, sin inclinarse.",D_ISO)],
+       vNota: "Semana de reevaluación — baja la carga." },
   9: { L: [ex("p9-l1","Trap Bar","4 × 3"), ex("p9-l2","RFESS","3 × 5"), ex("p9-l3","Hip Thrust","3 × 5"), ex("p9-l4","Broad Jump","3 × 4",SP), ex("p9-l5","Gemelos","3 × 15")],
        M: [ex("p9-m1","Skater Jump","4 × 6",SP), ex("p9-m2","Medicine Ball Rotacional","4 × 5"), ex("p9-m3","Dominadas lastradas","3 × 3"), ex("p9-m4","Landmine Press","3 × 6"), ex("p9-m5","Sprint reacción","6 reps",SP), ex("p9-m6","Medicine Ball Slam","4 × 6"), ex("p9-m7","Dominadas","3 × 5")],
        V: [ex("p9-v1","Escalera","× 6",SP), ex("p9-v2","COD","",SP), ex("p9-v3","Shuffle","",SP), ex("p9-v4","Reaction Drill","",SP), ex("p9-v5","Pases contra pared","",SP), ex("p9-v6","Gemelos","3 × 15")],
@@ -1359,10 +1446,12 @@ function emptyDay(nm) { return { nombre: nm, secciones: DEFAULT_SECTIONS.map(s =
 
 function freshState() {
   return {
-    tab: "plan", selWeek: 1, edit: false, planV: 10,
+    tab: "plan", selWeek: 1, edit: false, planV: 11,
     weekDone: {}, dayDone: {}, secDone: {}, selDay: {},
     routines: {}, compPick: {}, weekNotes: {}, dayNotes: {}, logs: {}, evals: {},
-    comments: [], bodyLog: [], openHist: {}, seq: 1, lastBackupTs: 0
+    comments: [], bodyLog: [], openHist: {}, seq: 1, lastBackupTs: 0,
+    extras: [],      // pádel u otra actividad fuera del plan (puede reemplazar un día)
+    lastPubTs: 0     // última publicación para Martín (datos.json)
   };
 }
 /* Migración v1→v2: llegó el plan real de Martín. Las rutinas guardadas eran copias
@@ -1586,6 +1675,34 @@ function migrateV10(st) {
   st.planV = 10;
   return st;
 }
+/* v10→v11: plan 01-10. Cambian el viernes de las semanas 3 y 4, la entrada en calor del
+   viernes y el Mesociclo 2 entero. Esta vez se reemplaza DÍA POR DÍA y solo si ese día
+   no se tocó: lo entrenado (registros, día hecho, evaluación, nota) queda como se hizo. */
+function diaTocado(st, n, di) {
+  const dk = n + "-" + di;
+  const dias = st.routines[n].dias;
+  if ((st.dayDone || {})[dk] || ((st.compPick || {})[dk] || []).length) return true;
+  const conValor = obj => Object.keys(obj || {}).some(k => k.indexOf(dk + "@") === 0 && obj[k] && (typeof obj[k] !== "object" || evalResumenTxt(obj[k])));
+  if (conValor(st.evals) || conValor(st.dayNotes)) return true;
+  if (Object.keys(st.secDone || {}).some(k => k.indexOf(dk + "-") === 0 && st.secDone[k])) return true;
+  const otros = {};
+  dias.forEach((d, i) => { if (i !== di) d.secciones.forEach(sx => sx.ejercicios.forEach(e => { otros[e.id] = 1; })); });
+  return dias[di].secciones.some(sx => !sx.menu && sx.ejercicios.some(e =>
+    !otros[e.id] && ((st.logs || {})[e.id] || []).some(l => enSemana(n, l.fecha))));
+}
+function migrateV11(st) {
+  Object.keys(st.routines || {}).forEach(n => {
+    const r = st.routines[n], seed = SEED.semanas[n - 1];
+    if (parseInt(n, 10) < 3 || !r || !r.dias || !seed || r.dias.length !== seed.dias.length) return;
+    seed.dias.forEach((sd, di) => {
+      if (JSON.stringify(r.dias[di]) === JSON.stringify(sd) || diaTocado(st, n, di)) return;
+      r.dias[di] = JSON.parse(JSON.stringify(sd));
+    });
+  });
+  if (!Array.isArray(st.extras)) st.extras = [];
+  st.planV = 11;
+  return st;
+}
 function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
@@ -1635,6 +1752,7 @@ function load() {
     if ((parsed.planV || 0) < 8) migrateV8(st);
     if ((parsed.planV || 0) < 9) migrateV9(st);
     if ((parsed.planV || 0) < 10) migrateV10(st);
+    if ((parsed.planV || 0) < 11) migrateV11(st);
     Object.keys(st.routines || {}).forEach(k => {
       const r = st.routines[k];
       if (Array.isArray(r)) {
@@ -1927,7 +2045,8 @@ function viewSemana() {
   const n = S.selWeek, w = SEED.semanas[n - 1];
   const done = !!S.weekDone[n];
   const rout = routineFor(n);
-  const di = Math.min(S.selDay[n] || 0, rout.dias.length - 1);
+  const xsel = S.selDay[n] === "x";      // pestaña de pádel / actividades extra
+  const di = xsel ? 0 : Math.min(S.selDay[n] || 0, rout.dias.length - 1);
   const day = rout.dias[di];
   const total = rout.dias.reduce((a, d) => a + d.secciones.reduce((b, s) => b + s.ejercicios.length, 0), 0);
 
@@ -1970,11 +2089,15 @@ function viewSemana() {
   h += `<div class="daytabs" role="tablist">`;
   rout.dias.forEach((d, i) => {
     const dk = n + "-" + i;
-    h += `<button class="daytab ${i === di ? "active" : ""}" role="tab" aria-selected="${i === di}" onclick="selDay(${n},${i})">
-      ${esc(d.nombre.split("·")[0].trim())} ${S.dayDone[dk] ? '<span class="dd">✓</span>' : ""}</button>`;
+    const act = i === di && !xsel;
+    h += `<button class="daytab ${act ? "active" : ""}" role="tab" aria-selected="${act}" onclick="selDay(${n},${i})">
+      ${esc(d.nombre.split("·")[0].trim())} ${S.dayDone[dk] ? '<span class="dd">✓</span>' : reemplazoDe(n, i) ? '<span class="dd" title="Reemplazado por pádel">↔</span>' : ""}</button>`;
   });
   if (S.edit) h += `<button class="daytab add" onclick="addDay(${n})">＋ Día</button>`;
+  const nx = extrasDe(n).length;
+  if (!S.edit) h += `<button class="daytab xtab ${xsel ? "active" : ""}" role="tab" aria-selected="${xsel}" onclick="selDay(${n},'x')">🎾 Pádel${nx ? ` <span class="dd">${nx}</span>` : ""}</button>`;
   h += `</div>`;
+  if (xsel && !S.edit) return h + viewExtras(n);
 
   const dk = n + "-" + di;
   if (day.nombre.includes("·")) {
@@ -1982,6 +2105,9 @@ function viewSemana() {
   } else if (day.nota) {
     h += `<p class="meso-obj" style="margin-top:8px;margin-bottom:4px">${esc(day.nota)}</p>`;
   }
+  const rx = reemplazoDe(n, di);
+  if (rx) h += `<div class="xrepl"><span>🎾 <b>Reemplazado por ${esc(extraNombre(rx).toLowerCase())}</b> el ${esc(diaSemanaDe(rx.fecha))} ${esc(rx.fecha)}${rx.min ? " · " + rx.min + " min" : ""}. Cuenta como día cubierto.</span>
+      <button class="mini" onclick="selDay(${n},'x')">Ver</button></div>`;
   // Progreso del día: hechos hoy sobre el total (complementarios: solo los elegidos)
   const picksHoy = pickList(n, di);
   let dTot = 0, dDone = 0;
@@ -2213,6 +2339,10 @@ function viewSuelto(id) {
   return h;
 }
 
+/* Esquema + RPE objetivo de Martín (desde el Mesociclo 2) */
+function esqHtml(exo) {
+  return esc(exo.esquema || "") + (exo.rpe ? `<small class="rpe">RPE ${esc(exo.rpe)}</small>` : "");
+}
 function exCard(exo, pos) {
   const hist = S.logs[exo.id] || [];
   const open = !!S.openHist[exo.id];
@@ -2233,7 +2363,7 @@ function exCard(exo, pos) {
       <div class="ex-slim ${doneHoy ? "done" : ""} ${exo.descanso ? "hasub" : ""}">
         <button class="stick ${doneHoy ? "done" : ""}" onclick="addDone('${esc(exo.id)}')" aria-label="${doneHoy ? "Hecho hoy" : "Marcar hecho"}">✓</button>
         <span class="sname">${esc(exo.nombre)}${exo.descanso ? `<span class="ssub">↺ ${esc(exo.descanso)}</span>` : ""}</span>
-        ${exo.esquema ? `<span class="sscheme">${esc(exo.esquema)}</span>` : ""}
+        ${exo.esquema || exo.rpe ? `<span class="sscheme">${esqHtml(exo)}</span>` : ""}
         ${ibtn}
         ${slink}
       </div>${obsHtml}</div>`;
@@ -2242,15 +2372,15 @@ function exCard(exo, pos) {
   // en chico. Los inputs aparecen recién al tocar el ejercicio (pedido de Mauro: que no esté todo abierto).
   if (!S.edit && !EXPANDED[exo.id]) {
     const vals = tl.filter(l => l.peso !== "✓").map(l => l.peso);
-    const sub = doneHoy
+    const sub = doneHoy || !(lastReal || exo.descanso)
       ? ""
-      : (lastReal ? `<span class="ssub">último <b>${esc(lastReal.peso)}</b>${lastReal.esf ? " · " + esc(lastReal.esf) : ""} <span class="muted">${esc(lastReal.fecha)}</span></span>` : "");
+      : `<span class="ssub">${lastReal ? `último <b>${esc(lastReal.peso)}</b>${lastReal.esf ? " · " + esc(lastReal.esf) : ""} <span class="muted">${esc(lastReal.fecha)}</span>` : ""}${lastReal && exo.descanso ? " · " : ""}${exo.descanso ? "↺ " + esc(exo.descanso) : ""}</span>`;
     return `
       <div class="ex-slim-wrap ${obsOpen ? "obs-on" : ""}" data-id="${esc(exo.id)}">
       <div class="ex-slim ${doneHoy ? "done" : ""} ${sub ? "hasub" : ""}">
         <button class="stick ${doneHoy ? "done" : ""}" onclick="${doneHoy ? "undoDone" : "markDone"}('${esc(exo.id)}')" aria-label="${doneHoy ? "Deshacer" : "Marcar hecho"}">✓</button>
         <button class="sname asbtn" onclick="expandEx('${esc(exo.id)}')">${esc(exo.nombre)}${sub}</button>
-        <span class="sscheme ${vals.length ? "val" : ""}">${vals.length ? esc(vals.join(" · ")) : esc(exo.esquema)}</span>
+        <span class="sscheme ${vals.length ? "val" : ""}">${vals.length ? esc(vals.join(" · ")) : esqHtml(exo)}</span>
         ${ibtn}
         ${slink}
       </div>${obsHtml}</div>`;
@@ -2300,7 +2430,7 @@ function exCard(exo, pos) {
       <div class="ex-top">
         ${check}
         <span class="ex-name">${esc(exo.nombre)}${ibtn}</span>
-        ${exo.esquema ? `<span class="ex-scheme">${esc(exo.esquema)}</span>` : ""}
+        ${exo.esquema || exo.rpe ? `<span class="ex-scheme">${esqHtml(exo)}</span>` : ""}
         ${fold}
       </div>
       ${obsHtml}
@@ -2400,12 +2530,13 @@ function viewProgreso() {
       </div>` : "";
   const doneCount = Object.values(S.weekDone).filter(Boolean).length;
   const daysCount = Object.values(S.dayDone).filter(Boolean).length;
+  const nPadel = (S.extras || []).length;
   const logged = Object.keys(S.logs).filter(k => S.logs[k].length).length;
   const nextHito = SEED.semanas.find(w => w.hito && !S.weekDone[w.n]);
   let h = avisoBackup + `
     <div class="stats">
       <div class="stat"><div class="n">${doneCount}<span class="muted" style="font-size:14px;font-family:var(--mono)">/12</span></div><div class="l">Semanas</div></div>
-      <div class="stat"><div class="n">${daysCount}</div><div class="l">Entrenos hechos</div></div>
+      <div class="stat"><div class="n">${daysCount}${nPadel ? `<span class="muted" style="font-size:14px;font-family:var(--mono)"> +${nPadel}</span>` : ""}</div><div class="l">Entrenos${nPadel ? " + pádel" : " hechos"}</div></div>
       <div class="stat"><div class="n">${logged}</div><div class="l">Ej. con registro</div></div>
     </div>
     <div class="card">
@@ -2417,16 +2548,16 @@ function viewProgreso() {
   // --- adherencia semana a semana ---
   const cw3 = curWeek();
   const adh = [];
-  for (let n = 1; n <= cw3; n++) adh.push({ l: "Sem " + n, v: sesionesHechas(n), tot: routineFor(n).dias.length });
+  for (let n = 1; n <= cw3; n++) adh.push({ l: "Sem " + n, v: sesionesHechas(n), tot: routineFor(n).dias.length, x: extrasDe(n).length });
   if (adh.length) {
     const hh = adh.reduce((a, r) => a + r.v, 0), pp = adh.reduce((a, r) => a + r.tot, 0);
     h += `<div class="card"><h2>Adherencia</h2>
-      <p class="small muted" style="margin-bottom:10px">Sesiones completadas sobre las planificadas hasta hoy: <b style="color:var(--ink)">${hh} de ${pp}</b> (${pp ? Math.round(100 * hh / pp) : 0}%).</p>
-      ${barChart(adh, { fmt: (v, r) => v + "/" + (r && r.tot || 3) })}</div>`;
+      <p class="small muted" style="margin-bottom:10px">Sesiones completadas sobre las planificadas hasta hoy: <b style="color:var(--ink)">${hh} de ${pp}</b> (${pp ? Math.round(100 * hh / pp) : 0}%). Un día reemplazado por pádel cuenta como cubierto.</p>
+      ${barChart(adh, { fmt: adhFmt })}</div>`;
   }
 
   // --- rodilla: el número que decide si se progresa ---
-  const sesAll = sesionesPlan(1, 12);
+  const sesAll = conExtras(sesionesPlan(1, 12), 1, 12);
   const dolorS = sesAll.filter(x => x.ev && x.ev.dolor24 != null).map(x => ({ f: x.fecha, v: x.ev.dolor24 }));
   const rpeS = sesAll.filter(x => x.ev && x.ev.rpe).map(x => ({ f: x.fecha, v: x.ev.rpe }));
   if (dolorS.length || rpeS.length) {
@@ -2640,7 +2771,7 @@ window.openWeek = n => {
 window.openSuelto = id => { S.selWeek = id; S.tab = "semana"; FORM = null; DFORM = null; ASK = null; save(); render(); window.scrollTo(0, 0); };
 window.openCal = () => { S.selWeek = "cal"; S.tab = "semana"; FORM = null; DFORM = null; ASK = null; save(); render(); window.scrollTo(0, 0); };
 window.toggleFase = i => { CALOPEN[i] = !CALOPEN[i]; render(); };
-window.selDay = (n, i) => { S.selDay[n] = i; FORM = null; DFORM = null; ASK = null; DAYOPEN = {}; save(); render(); window.scrollTo(0, 0); };
+window.selDay = (n, i) => { S.selDay[n] = i; XFORM = null; FORM = null; DFORM = null; ASK = null; DAYOPEN = {}; save(); render(); window.scrollTo(0, 0); };
 window.toggleDone = n => { S.weekDone[n] = !S.weekDone[n]; save(); render(); };
 window.toggleDayDone = dk => {
   S.dayDone[dk] = !S.dayDone[dk];
@@ -2982,6 +3113,139 @@ window.timerPause = () => {
 window.timerStop = () => { timerClear(); timerRender(); };
 document.addEventListener("visibilitychange", () => { if (!document.hidden) timerTick(); });
 
+/* ================= PÁDEL Y ACTIVIDADES FUERA DEL PLAN =================
+   Un partido no está en el plan de Martín, pero cuenta: si ocupa el lugar de un día
+   (típicamente una natación), ese día queda cubierto y la semana no aparece como que
+   Mauro entrenó menos. La rodilla al día siguiente se pide igual que en el gimnasio. */
+const SENS = ["Muy bien", "Bien", "Regular", "Mal"];
+const DIAS_CORTO = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+let XFORM = null;      // borrador de la actividad que se está cargando o editando
+function extrasEn(from, to) {
+  return (S.extras || []).filter(x => x.n >= from && x.n <= to).sort((a, b) => fechaOrd(a.fecha) - fechaOrd(b.fecha));
+}
+function extrasDe(n) { return extrasEn(n, n); }
+function reemplazoDe(n, di) { return (S.extras || []).find(x => x.n === n && x.reemplaza === n + "-" + di) || null; }
+function extraNombre(x) { return x.tipo === "otra" ? (x.nombre || "Otra actividad") : "Pádel"; }
+function diaPlanCorto(n, dk) {
+  const di = parseInt(String(dk).split("-")[1], 10);
+  const d = routineFor(n).dias[di];
+  if (!d) return "";
+  const p = d.nombre.split("·").map(t => t.trim());
+  return p.length > 1 ? p[1] + " (" + p[0].toLowerCase() + ")" : d.nombre;
+}
+function extraResumenTxt(x, sinReemplazo) {
+  const p = [];
+  if (x.min) p.push(x.min + " min");
+  if (x.rpe) p.push("RPE " + x.rpe);
+  if (x.sens) p.push("se sintió " + x.sens.toLowerCase());
+  if (x.dolor24 != null) p.push("dolor 24h " + x.dolor24 + "/10");
+  if (x.reemplaza && !sinReemplazo) p.push("reemplaza " + diaPlanCorto(x.n, x.reemplaza));
+  return p.join(" · ");
+}
+function fechasSemanaN(n) {
+  const out = [];
+  for (let i = 0; i < 7; i++) {
+    const d = weekStart(n); d.setDate(d.getDate() + i);
+    out.push({ f: d.getDate() + "/" + (d.getMonth() + 1), dia: DIAS_CORTO[d.getDay()], num: d.getDate() });
+  }
+  return out;
+}
+function viewExtras(n) {
+  const xs = extrasDe(n);
+  let h = `<p class="meso-obj" style="margin-top:8px"><b>Pádel y actividades fuera del plan.</b> Si un partido ocupa el lugar de un día —por ejemplo, una natación—, marcá cuál: ese día cuenta como cubierto y la semana no queda como que entrenaste menos.</p>`;
+  xs.forEach(x => {
+    if (XFORM && XFORM.id === x.id) { h += extraForm(n); return; }
+    const kd = "x:" + x.id;
+    h += `<div class="card xcard">
+      <div class="xtop"><b>🎾 ${esc(extraNombre(x))}</b><span class="wdate">${esc(diaSemanaDe(x.fecha))} ${esc(x.fecha)}</span></div>
+      <p class="xmeta">${esc([x.min ? x.min + " min" : "", x.rpe ? "RPE " + x.rpe : "", x.sens ? "Me sentí " + x.sens.toLowerCase() : ""].filter(Boolean).join(" · ") || "Sin datos de esfuerzo")}</p>
+      <p class="xrep ${x.reemplaza ? "on" : ""}">${x.reemplaza ? "↔ Reemplaza " + esc(diaPlanCorto(n, x.reemplaza)) : "Extra — no reemplaza ningún día"}</p>
+      ${x.nota ? `<p class="xnota">${esc(x.nota)}</p>` : ""}
+      <p class="evlabel">Rodilla al día siguiente (0-10)</p>
+      <div class="chips10">${Array.from({ length: 11 }, (_, v) => `<button class="chip10 ${x.dolor24 === v ? "sel" : ""} ${v >= 4 ? "hi" : ""}" onclick="setExtraDolor('${esc(x.id)}',${v})">${v}</button>`).join("")}</div>
+      <div class="rowbtns" style="margin-top:10px">
+        <button class="mini" onclick="editarExtra('${esc(x.id)}')">✎ Editar</button>
+        <button class="mini warn ${armed(kd) ? "armed" : ""}" onclick="borrarExtra('${esc(x.id)}')">${armed(kd) ? "¿Seguro? Sí, borrar" : "Borrar"}</button>
+      </div>
+    </div>`;
+  });
+  if (XFORM && XFORM.n === n && !XFORM.id) h += extraForm(n);
+  else if (!XFORM) h += `<div class="rowbtns" style="margin:6px 0 4px"><button class="btn primary" onclick="nuevoExtra(${n})">＋ Anotar pádel u otra actividad</button></div>`;
+  return h;
+}
+function extraForm(n) {
+  const f = XFORM;
+  const rout = routineFor(n);
+  const ocupado = dk => (S.extras || []).some(x => x.reemplaza === dk && x.id !== f.id);
+  const opciones = [{ v: "", l: "No", s: "fue extra" }].concat(rout.dias.map((d, di) => {
+    const dk = n + "-" + di, p = d.nombre.split("·").map(t => t.trim());
+    return { v: dk, l: p[1] || p[0], s: (p.length > 1 ? p[0].toLowerCase() : "") + (S.dayDone[dk] ? " · ya hecho" : ""), off: ocupado(dk) };
+  }).filter(o => !o.off));
+  const mch = (campo, v, l, s) => `<button class="mchip ${f[campo] === v ? "on" : ""}" onclick="setXF('${campo}',${JSON.stringify(v).replace(/"/g, "&quot;")})">${esc(l)}${s ? `<small>${esc(s)}</small>` : ""}</button>`;
+  return `<div class="card xform">
+    <p class="evhead">${f.id ? "Editar actividad" : "Nueva actividad"}</p>
+    <p class="evlabel">Qué hiciste</p>
+    <div class="menu-chips">${mch("tipo", "padel", "Pádel")}${mch("tipo", "otra", "Otra")}</div>
+    ${f.tipo === "otra" ? `<input type="text" class="evinput" id="x-nombre" value="${esc(f.nombre || "")}" placeholder="Fútbol, caminata, bici…" style="margin-top:8px">` : ""}
+    <p class="evlabel">Qué día</p>
+    <div class="menu-chips">${fechasSemanaN(n).map(d => mch("fecha", d.f, d.dia, d.f)).join("")}</div>
+    <p class="evlabel">Duración (minutos)</p>
+    <input type="text" class="evinput" id="x-min" value="${esc(f.min || "")}" placeholder="90" inputmode="numeric">
+    <p class="evlabel">Cómo te sentiste</p>
+    <div class="menu-chips">${SENS.map(t => mch("sens", t, t)).join("")}</div>
+    <p class="evlabel">Esfuerzo (RPE 1-10)</p>
+    <div class="chips10">${Array.from({ length: 10 }, (_, i) => i + 1).map(v => `<button class="chip10 ${f.rpe === v ? "sel" : ""}" onclick="setXF('rpe',${v})">${v}</button>`).join("")}</div>
+    <p class="evlabel">¿Reemplazó algún día del plan?</p>
+    <div class="menu-chips">${opciones.map(o => mch("reemplaza", o.v, o.l, o.s)).join("")}</div>
+    <p class="evlabel">Nota</p>
+    <textarea class="notes" id="x-nota" placeholder="Partido, rival, molestias…">${esc(f.nota || "")}</textarea>
+    <div class="rowbtns" style="margin-top:10px">
+      <button class="btn primary" onclick="guardarExtra()">Guardar</button>
+      <button class="btn ghost" onclick="cancelarExtra()">Cancelar</button>
+    </div>
+  </div>`;
+}
+/* Los campos de texto se limpian antes de abrir otro formulario: render() repone los
+   valores por id y, sin esto, lo escrito en uno aparecería en el siguiente. */
+function limpiarXInputs() { document.querySelectorAll("#x-min, #x-nota, #x-nombre").forEach(el => { el.value = ""; }); }
+window.nuevoExtra = n => {
+  limpiarXInputs();
+  const hoyF = hoy(), dias = fechasSemanaN(n);
+  XFORM = { n, id: null, tipo: "padel", fecha: dias.some(d => d.f === hoyF) ? hoyF : dias[0].f, sens: "", rpe: null, reemplaza: "" };
+  render();
+};
+window.editarExtra = id => {
+  limpiarXInputs();
+  const x = (S.extras || []).find(e => e.id === id);
+  if (x) { XFORM = Object.assign({}, x); render(); }
+};
+window.cancelarExtra = () => { limpiarXInputs(); XFORM = null; render(); };
+window.setXF = (campo, v) => { if (XFORM) { XFORM[campo] = XFORM[campo] === v && campo !== "fecha" && campo !== "tipo" ? (campo === "reemplaza" ? "" : null) : v; render(); } };
+window.guardarExtra = () => {
+  const f = XFORM;
+  if (!f) return;
+  const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ""; };
+  const rec = {
+    id: f.id || "x" + (S.seq++), n: f.n, tipo: f.tipo || "padel",
+    nombre: f.tipo === "otra" ? (val("x-nombre") || "Otra actividad") : "",
+    fecha: f.fecha, min: parseInt(val("x-min"), 10) || null, rpe: f.rpe || null, sens: f.sens || "",
+    dolor24: f.dolor24 != null ? f.dolor24 : null, nota: val("x-nota"), reemplaza: f.reemplaza || ""
+  };
+  S.extras = (S.extras || []).filter(x => x.id !== rec.id).concat(rec);
+  limpiarXInputs(); XFORM = null; save(); render();
+};
+window.setExtraDolor = (id, v) => {
+  const x = (S.extras || []).find(e => e.id === id);
+  if (!x) return;
+  x.dolor24 = x.dolor24 === v ? null : v;
+  save(); render();
+};
+window.borrarExtra = id => {
+  if (!confirmTap("x:" + id)) return;
+  S.extras = (S.extras || []).filter(x => x.id !== id);
+  save(); render();
+};
+
 /* ================= INFORME PARA MARTÍN =================
    Un registro puede repetirse en varias semanas (los complementarios comparten id),
    así que todo se acota a la ventana de fechas de cada semana. */
@@ -3042,6 +3306,12 @@ function sesionesPlan(fromW, toW) {
     return { n: info.n, di: info.di, dk, fecha: f, dia: info.dia, ev, nota, regs: o.regs };
   });
 }
+/* Sesiones del plan + pádel, en orden de fecha. Los partidos entran a los gráficos de
+   RPE y de rodilla: para Martín un partido es carga igual que un entreno. */
+function conExtras(ses, from, to) {
+  return ses.concat(extrasEn(from, to).map(x => ({ extra: x, n: x.n, fecha: x.fecha, ev: { rpe: x.rpe, dolor24: x.dolor24 } })))
+    .sort((a, b) => fechaOrd(a.fecha) - fechaOrd(b.fecha));
+}
 /* Martín cambia el esquema entre semanas y eso genera un id nuevo para el mismo
    ejercicio: agrupado por id, "Landmine Press" son dos ejercicios distintos y la
    progresión real no se ve. Acá se agrupa por nombre. */
@@ -3090,8 +3360,9 @@ function tonelajeSemana(n) {
   return Math.round(t);
 }
 function sesionesHechas(n) {
-  return routineFor(n).dias.filter((d, di) => S.dayDone[n + "-" + di]).length;
+  return routineFor(n).dias.filter((d, di) => S.dayDone[n + "-" + di] || reemplazoDe(n, di)).length;
 }
+function adhFmt(v, r) { return v + "/" + (r && r.tot || 5) + (r && r.x ? " + " + r.x + " pádel" : ""); }
 /* Gráfico de línea con banda de corte — el de dolor 24h es el que gobierna el plan */
 function lineChart(pts, o) {
   o = o || {};
@@ -3134,8 +3405,11 @@ function textoInforme() {
   let hechas = 0, plan = 0;
   for (let n = from; n <= to; n++) { hechas += sesionesHechas(n); plan += routineFor(n).dias.length; }
   t += "ADHERENCIA: " + hechas + "/" + plan + " sesiones (" + (plan ? Math.round(100 * hechas / plan) : 0) + "%)\n";
-  for (let n = from; n <= to; n++) t += "  Semana " + n + ": " + sesionesHechas(n) + "/3 · volumen " + tonelajeSemana(n).toLocaleString("es-AR") + " kg\n";
-  const dolor = ses.filter(x => x.ev && x.ev.dolor24 != null);
+  for (let n = from; n <= to; n++) t += "  Semana " + n + ": " + sesionesHechas(n) + "/" + routineFor(n).dias.length +
+    (extrasDe(n).length ? " + " + extrasDe(n).length + " pádel" : "") + " · volumen " + tonelajeSemana(n).toLocaleString("es-AR") + " kg\n";
+  const xs = extrasEn(from, to);
+  if (xs.length) t += "  (un día reemplazado por pádel cuenta como cubierto)\n";
+  const dolor = conExtras(ses, from, to).filter(x => x.ev && x.ev.dolor24 != null);
   if (dolor.length) {
     const picos = dolor.filter(d => d.ev.dolor24 >= 4).length;
     t += "\nRODILLA (dolor 24 h): " + dolor.map(d => d.fecha + " " + d.ev.dolor24).join(" · ") + "\n";
@@ -3150,6 +3424,13 @@ function textoInforme() {
         m.fechas.map(f => m.regs.filter(r => r.fecha === f).map(r => r.peso).join("/") + " el " + f).join(" → ") +
         (m.delta !== null ? "  [" + (m.delta > 0 ? "+" : "") + nfmt(m.delta) + " kg" + (m.pct !== null ? " · " + (m.pct > 0 ? "+" : "") + m.pct + "%" : "") +
           (m.inverso ? " de asistencia — menos es mejor" : "") + "]" : "") + "\n";
+    });
+  }
+  if (xs.length) {
+    t += "\nPÁDEL Y OTRAS ACTIVIDADES\n";
+    xs.forEach(x => {
+      t += "• " + x.fecha + " " + diaSemanaDe(x.fecha) + " · " + extraNombre(x) + (extraResumenTxt(x) ? " · " + extraResumenTxt(x) : "") + "\n";
+      if (x.nota) t += "  Nota: " + x.nota + "\n";
     });
   }
   t += "\nSESIÓN POR SESIÓN\n";
@@ -3203,7 +3484,7 @@ function empaquetar(from, to) {
     if (seed && seed.dias && JSON.stringify(S.routines[n].dias) !== JSON.stringify(seed.dias)) R[n] = S.routines[n];
   });
   const d = { v: 1, f: from, t: to, L, E: S.evals, N: S.dayNotes, D: S.dayDone,
-    W: S.weekDone, C: S.comments, B: S.bodyLog, P: S.compPick };
+    W: S.weekDone, C: S.comments, B: S.bodyLog, P: S.compPick, X: S.extras || [] };
   if (Object.keys(R).length) d.R = R;
   return d;
 }
@@ -3233,7 +3514,7 @@ function aplicarCompartido(d) {
   });
   S.evals = d.E || {}; S.dayNotes = d.N || {}; S.dayDone = d.D || {};
   S.weekDone = d.W || {}; S.comments = d.C || []; S.bodyLog = d.B || [];
-  S.compPick = d.P || {}; S.routines = d.R || {};
+  S.compPick = d.P || {}; S.routines = d.R || {}; S.extras = d.X || [];
   EXCACHE = null;
 }
 /* Link de importación: trae un backup entero dentro de la URL y lo carga previa
@@ -3344,21 +3625,25 @@ function viewInforme() {
   for (let n = from; n <= to; n++) {
     const tot = routineFor(n).dias.length, hh = sesionesHechas(n);
     hechas += hh; plan += tot;
-    filas.push({ l: "Sem " + n, v: hh, tot });
+    filas.push({ l: "Sem " + n, v: hh, tot, x: extrasDe(n).length });
   }
+  const xsI = extrasEn(from, to);
   h += `<section class="rep-sec">
     <h2>Adherencia</h2>
     <p class="rep-kpis">
       <span class="rk"><b>${hechas}/${plan}</b><span>sesiones completadas</span></span>
       <span class="rk"><b>${plan ? Math.round(100 * hechas / plan) : 0}%</b><span>del plan</span></span>
       <span class="rk"><b>${ses.length}</b><span>días con registro</span></span>
+      ${xsI.length ? `<span class="rk"><b>${xsI.length}</b><span>${xsI.length > 1 ? "partidos de pádel" : "partido de pádel"}</span></span>` : ""}
     </p>
-    ${barChart(filas, { fmt: (v, r) => v + "/" + (r && r.tot || 3) })}
+    ${barChart(filas, { fmt: adhFmt })}
+    ${xsI.some(x => x.reemplaza) ? `<p class="rep-note muted">Los días reemplazados por pádel cuentan como cubiertos.</p>` : ""}
   </section>`;
 
   // --- rodilla: el criterio de progresión de Martín ---
-  const dolor = ses.filter(x => x.ev && x.ev.dolor24 != null).map(x => ({ f: x.fecha, v: x.ev.dolor24 }));
-  const rpe = ses.filter(x => x.ev && x.ev.rpe).map(x => ({ f: x.fecha, v: x.ev.rpe }));
+  const sesX = conExtras(ses, from, to);
+  const dolor = sesX.filter(x => x.ev && x.ev.dolor24 != null).map(x => ({ f: x.fecha, v: x.ev.dolor24 }));
+  const rpe = sesX.filter(x => x.ev && x.ev.rpe).map(x => ({ f: x.fecha, v: x.ev.rpe }));
   const picos = dolor.filter(d => d.v >= 4).length;
   h += `<section class="rep-sec">
     <h2>Rodilla — dolor a las 24 h</h2>
@@ -3412,8 +3697,18 @@ function viewInforme() {
 
   // --- sesión por sesión ---
   h += `<section class="rep-sec long"><h2>Sesión por sesión</h2>`;
-  if (!ses.length) h += `<p class="rep-note muted">Todavía no hay sesiones registradas en este período.</p>`;
-  ses.forEach(x => {
+  if (!sesX.length) h += `<p class="rep-note muted">Todavía no hay sesiones registradas en este período.</p>`;
+  sesX.forEach(x => {
+    if (x.extra) {
+      const e = x.extra;
+      h += `<div class="rep-ses xses">
+        <p class="rs-top"><b>${esc(e.fecha)}</b> ${esc(diaSemanaDe(e.fecha))} · Semana ${e.n} <span class="ok">🎾 ${esc(extraNombre(e).toLowerCase())}</span>
+          ${e.reemplaza ? `<br><span class="dim">En lugar de ${esc(diaPlanCorto(e.n, e.reemplaza))}</span>` : ""}</p>
+        ${extraResumenTxt(e, true) ? `<p class="rs-ev">${esc(extraResumenTxt(e, true))}</p>` : ""}
+        ${e.nota ? `<p class="rs-nota">${esc(e.nota)}</p>` : ""}
+      </div>`;
+      return;
+    }
     const ev = evalResumenTxt(x.ev);
     h += `<div class="rep-ses">
       <p class="rs-top"><b>${esc(x.fecha)}</b> ${esc(diaSemanaDe(x.fecha))} · Semana ${x.n}${S.dayDone[x.dk] ? ' <span class="ok">completado</span>' : ""}
@@ -3494,6 +3789,9 @@ function buildWeekResumen(n) {
       }
     });
   }
+  extrasDe(n).forEach(x => {
+    t += "\n🎾 " + extraNombre(x) + " · " + x.fecha + (extraResumenTxt(x) ? " — " + extraResumenTxt(x) : "") + (x.nota ? "\n  📝 " + x.nota : "") + "\n";
+  });
   const cs = S.comments.filter(c => String(c.semana) === String(n));
   if (cs.length) { t += "\n💬 Comentarios:\n"; cs.forEach(c => { t += "  [" + c.quien + "] " + c.texto + "\n"; }); }
   const lb = S.bodyLog.length ? S.bodyLog[S.bodyLog.length - 1] : null;
@@ -3670,7 +3968,8 @@ function backupObj() {
   });
   return {
   planV: S.planV, weekDone: S.weekDone, dayDone: S.dayDone, secDone: S.secDone, routines: R, compPick: S.compPick,
-    weekNotes: S.weekNotes, dayNotes: S.dayNotes, logs: S.logs, evals: S.evals, comments: S.comments, bodyLog: S.bodyLog, seq: S.seq };
+    weekNotes: S.weekNotes, dayNotes: S.dayNotes, logs: S.logs, evals: S.evals, comments: S.comments, bodyLog: S.bodyLog,
+    extras: S.extras || [], seq: S.seq };
 }
 window.exportBackup = () => {
   S.lastBackupTs = Date.now(); save();
@@ -3719,6 +4018,7 @@ function aplicarImport(d) {
     if ((d.planV || 0) < 8) migrateV8(d);
     if ((d.planV || 0) < 9) migrateV9(d);
     if ((d.planV || 0) < 10) migrateV10(d);
+    if ((d.planV || 0) < 11) migrateV11(d);
     if ((d.planV || 0) < 6 && d.weekNotes) {
       d.dayNotes = d.dayNotes || {};
       Object.entries(d.weekNotes).forEach(([n, v]) => { if (v && String(v).trim()) d.dayNotes[n + "-0"] = String(v).trim(); });
@@ -3729,6 +4029,7 @@ function aplicarImport(d) {
     });
     if (Array.isArray(d.comments)) S.comments = d.comments;
     if (Array.isArray(d.bodyLog)) S.bodyLog = d.bodyLog;
+    S.extras = Array.isArray(d.extras) ? d.extras : [];
     if (typeof d.seq === "number") S.seq = Math.max(S.seq, d.seq);
     Object.keys(S.routines).forEach(k => {
       if (Array.isArray(S.routines[k])) {
