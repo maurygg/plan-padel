@@ -729,6 +729,13 @@
     background: var(--surface-2); color: var(--muted); font-size: 12px; cursor: pointer; line-height: 1; padding: 0; }
   .card.notesaved { background: color-mix(in srgb, var(--sage) 18%, var(--surface)); border-left: 3px solid var(--green-soft); }
   .card.notesaved p { font-size: 13.5px; line-height: 1.5; white-space: pre-wrap; }
+  .pubcard { border-left: 3px solid var(--green); }
+  .pubsteps { margin: 8px 0 10px; padding-left: 20px; font-size: 13px; line-height: 1.55; }
+  .pubsteps a { color: var(--green); font-weight: 650; }
+  .pubmsg { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); }
+  .pubmsg.ok { color: var(--green); font-weight: 600; }
+  .pubmsg.subiendo { color: var(--gold); }
+  .pubmsg.error { color: var(--clay); font-weight: 600; }
   .daytab.xtab { border-style: dashed; }
   .daytab.xtab.active { border-style: solid; }
   .xrepl { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 2px 10px;
@@ -2075,9 +2082,14 @@ function viewSemana() {
   if (done) {
     h += `
       <div class="banner-done">
-        <p><b>Semana ${n} completada</b> 🎾 — mandale los resultados y evaluaciones a Martín:</p>
+        <p><b>Semana ${n} completada</b> 🎾 — ${ghToken()
+          ? "se publica sola: el link fijo de Martín queda al día."
+          : "Martín la ve en el link fijo recién cuando la publicás."}</p>
+        ${ghToken() ? pubLine() : ""}
         <div class="rowbtns">
           <button class="btn primary" onclick="abrirInforme(${n},${n})">Informe de la semana</button>
+          ${ghToken() ? `<button class="btn" onclick="publicarAhora()">Publicar de nuevo</button>`
+            : `<button class="btn" onclick="irAPublicar()">Conectar publicación</button>`}
           <a class="btn wa" style="text-decoration:none;display:inline-flex;align-items:center" href="${esc(waUrl(buildWeekResumen(n)))}" target="_blank" rel="noopener">WhatsApp</a>
         </div>
       </div>`;
@@ -2656,7 +2668,7 @@ function viewProgreso() {
     </div>
   </div>`;
 
-  h += `
+  h += pubCard() + `
     <div class="card">
       <h2>Informe para Martín</h2>
       <p class="small muted">Una hoja con adherencia, dolor de rodilla a 24 h, RPE, volumen y la progresión de cada carga. Se guarda como PDF y se manda como archivo — mucho más fácil de leer que el texto suelto.</p>
@@ -2772,11 +2784,12 @@ window.openSuelto = id => { S.selWeek = id; S.tab = "semana"; FORM = null; DFORM
 window.openCal = () => { S.selWeek = "cal"; S.tab = "semana"; FORM = null; DFORM = null; ASK = null; save(); render(); window.scrollTo(0, 0); };
 window.toggleFase = i => { CALOPEN[i] = !CALOPEN[i]; render(); };
 window.selDay = (n, i) => { S.selDay[n] = i; XFORM = null; FORM = null; DFORM = null; ASK = null; DAYOPEN = {}; save(); render(); window.scrollTo(0, 0); };
-window.toggleDone = n => { S.weekDone[n] = !S.weekDone[n]; save(); render(); };
+window.toggleDone = n => { S.weekDone[n] = !S.weekDone[n]; save(); render(); if (S.weekDone[n]) autoPublicar(); };
 window.toggleDayDone = dk => {
   S.dayDone[dk] = !S.dayDone[dk];
   DAYOPEN[dk] = !S.dayDone[dk];   // completar pliega el día; desmarcar lo vuelve a abrir
   ASK = null; save(); render(); window.scrollTo(0, 0);
+  if (S.dayDone[dk]) autoPublicar();
 };
 window.openDay = dk => { DAYOPEN[dk] = true; render(); };
 /* Marcar una etapa tilda todos sus ejercicios y la minimiza. Destildar borra SOLO
@@ -3233,18 +3246,149 @@ window.guardarExtra = () => {
   };
   S.extras = (S.extras || []).filter(x => x.id !== rec.id).concat(rec);
   limpiarXInputs(); XFORM = null; save(); render();
+  autoPublicar();
 };
 window.setExtraDolor = (id, v) => {
   const x = (S.extras || []).find(e => e.id === id);
   if (!x) return;
   x.dolor24 = x.dolor24 === v ? null : v;
-  save(); render();
+  save(); render(); autoPublicar();
 };
 window.borrarExtra = id => {
   if (!confirmTap("x:" + id)) return;
   S.extras = (S.extras || []).filter(x => x.id !== id);
-  save(); render();
+  save(); render(); autoPublicar();
 };
+
+/* ================= PUBLICAR PARA MARTÍN =================
+   El link fijo (#informe) lee datos.json del repo. Antes había que copiar el backup y
+   pegarlo en GitHub a mano, y marcar la semana no publicaba nada: Martín seguía viendo
+   lo viejo. Ahora la app lo sube sola con la API de GitHub, con un token que vive SOLO
+   en este dispositivo: no está en el código, ni en los backups, ni en los links. */
+const GH_REPO = "maurygg/plan-padel", GH_PATH = "docs/datos.json", GH_TOKEN_KEY = "padel-gh-token";
+let PUB = { estado: "", msg: "" }, PUB_T = null;
+function ghToken() { try { return localStorage.getItem(GH_TOKEN_KEY) || ""; } catch (e) { return ""; } }
+function b64utf8(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function horaDe(ts) { const d = new Date(ts); return d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0"); }
+function pubTxt() {
+  if (PUB.msg) return PUB.msg;
+  return S.lastPubTs ? "Última publicación: " + horaDe(S.lastPubTs) + "." : "Todavía no publicaste desde este dispositivo.";
+}
+function pubLine() { return `<p class="pubmsg ${PUB.estado}">${esc(pubTxt())}</p>`; }
+function pubEstado(estado, msg) {
+  PUB = { estado, msg };
+  document.querySelectorAll(".pubmsg").forEach(el => { el.textContent = msg; el.className = "pubmsg " + estado; });
+}
+async function ghFetch(url, opts) {
+  const r = await fetch(url, Object.assign({ cache: "no-store" }, opts, {
+    headers: Object.assign({ Authorization: "Bearer " + ghToken(), Accept: "application/vnd.github+json" }, (opts && opts.headers) || {})
+  }));
+  if (r.status === 401) throw new Error("GitHub rechazó el token (venció o está mal copiado)");
+  if (r.status === 403) throw new Error("el token no tiene permiso de escritura en " + GH_REPO);
+  return r;
+}
+async function publicar() {
+  const api = "https://api.github.com/repos/" + GH_REPO + "/contents/" + GH_PATH;
+  const contenido = b64utf8(JSON.stringify(backupObj()));
+  for (let intento = 0; intento < 2; intento++) {
+    const g = await ghFetch(api + "?ref=main&t=" + Date.now());
+    const sha = g.ok ? (await g.json()).sha : undefined;
+    const body = { message: "Progreso publicado desde la app · " + hoy(), content: contenido, branch: "main" };
+    if (sha) body.sha = sha;
+    const p = await ghFetch(api, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (p.ok) { S.lastPubTs = Date.now(); save(); return; }
+    if (p.status !== 409 && p.status !== 422) throw new Error("GitHub respondió " + p.status);
+  }
+  throw new Error("GitHub tuvo un conflicto al guardar; probá de nuevo");
+}
+window.publicarAhora = async () => {
+  if (READONLY || !ghToken()) return;
+  clearTimeout(PUB_T);
+  pubEstado("subiendo", "Publicando…");
+  try {
+    await publicar();
+    pubEstado("ok", "Publicado ✓ " + horaDe(S.lastPubTs) + " — Martín lo ve en el link fijo en 1 o 2 minutos.");
+  } catch (e) {
+    pubEstado("error", "No se pudo publicar: " + ((e && e.message) || "sin conexión") + ". Lo tuyo sigue guardado en el teléfono.");
+  }
+};
+/* Cada cierre (día, semana, partido) publica solo. Se agrupa lo que pasa en pocos
+   segundos para no generar una publicación por toque. */
+function autoPublicar() {
+  if (READONLY || !ghToken()) return;
+  clearTimeout(PUB_T);
+  pubEstado("subiendo", "Publicando en unos segundos…");
+  PUB_T = setTimeout(() => window.publicarAhora(), 2500);
+}
+window.conectarPublicacion = async () => {
+  const el = document.getElementById("gh-tok");
+  const tok = el ? el.value.trim() : "";
+  if (!tok) { pubEstado("error", "Pegá el token primero."); return; }
+  try { localStorage.setItem(GH_TOKEN_KEY, tok); } catch (e) { pubEstado("error", "Este navegador no deja guardar el token."); return; }
+  el.value = "";
+  pubEstado("subiendo", "Probando el token…");
+  try {
+    const r = await ghFetch("https://api.github.com/repos/" + GH_REPO);
+    if (!r.ok) throw new Error("no encuentro el repo " + GH_REPO);
+    const info = await r.json();
+    if (!info.permissions || !info.permissions.push) throw new Error("el token puede leer pero no escribir");
+  } catch (e) {
+    try { localStorage.removeItem(GH_TOKEN_KEY); } catch (e2) {}
+    render();
+    pubEstado("error", "No quedó conectado: " + ((e && e.message) || "error") + ".");
+    return;
+  }
+  render();
+  await window.publicarAhora();
+};
+window.desconectarPublicacion = () => {
+  if (!confirmTap("ghoff")) return;
+  try { localStorage.removeItem(GH_TOKEN_KEY); } catch (e) {}
+  PUB = { estado: "", msg: "" };
+  render();
+};
+window.irAPublicar = () => {
+  S.tab = "progreso"; FORM = null; DFORM = null; save(); render();
+  const c = document.getElementById("pubcard");
+  if (c) c.scrollIntoView({ block: "start" }); else window.scrollTo(0, 0);
+};
+function pubCard() {
+  const link = location.origin + location.pathname + "#informe";
+  if (ghToken()) {
+    const kd = "ghoff";
+    return `<div class="card pubcard" id="pubcard">
+      <h2>Publicar para Martín</h2>
+      <p class="small muted">Conectado ✓ — cada vez que cerrás un día, la semana o un partido, la app publica sola y el link fijo de Martín se actualiza.</p>
+      ${pubLine()}
+      <div class="rowbtns" style="margin-top:8px">
+        <button class="btn primary" onclick="publicarAhora()">Publicar ahora</button>
+        <button class="btn" onclick="copiarLinkPublicado()">Copiar link fijo</button>
+        <button class="mini warn ${armed(kd) ? "armed" : ""}" onclick="desconectarPublicacion()">${armed(kd) ? "¿Seguro?" : "Desconectar"}</button>
+      </div>
+      <p id="repmsg" class="small muted" style="margin:8px 0 0"></p>
+    </div>`;
+  }
+  return `<div class="card pubcard" id="pubcard">
+    <h2>Publicar para Martín</h2>
+    <p class="small muted">El link fijo (<span class="mono">${esc(link)}</span>) muestra lo último que se publicó, no lo que tenés en el teléfono. Para que se actualice solo, conectá la publicación <b>una vez</b> en este teléfono:</p>
+    <ol class="pubsteps">
+      <li>Entrá a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com → nuevo token</a> (logueado como maurygg).</li>
+      <li>Nombre: <b>app pádel</b>. Vencimiento: <b>1 año</b>.</li>
+      <li>Repository access: <b>Only select repositories</b> → <b>plan-padel</b>.</li>
+      <li>Permissions → Repository permissions → <b>Contents: Read and write</b>.</li>
+      <li>Generate token, copialo y pegalo acá:</li>
+    </ol>
+    <input type="password" class="evinput" id="gh-tok" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="rowbtns" style="margin-top:8px"><button class="btn primary" onclick="conectarPublicacion()">Conectar</button></div>
+    ${pubLine()}
+    <p class="small muted" style="margin-top:8px">El token queda guardado solo en este teléfono: no viaja en backups ni en links, y solo puede tocar el repo plan-padel. Sin conectarlo, sigue funcionando el <b>Link con lo de HOY</b> desde el informe.</p>
+  </div>`;
+}
 
 /* ================= INFORME PARA MARTÍN =================
    Un registro puede repetirse en varias semanas (los complementarios comparten id),
