@@ -564,6 +564,7 @@
     .rep-kpis .rk, .rep-tab, .brow .bt { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .rep-sec { margin-top: 18px; }
     a[href]:after { content: ""; }
+    .no-print { display: none !important; }
     @page { size: A4; margin: 14mm 13mm; }
   }
   .masthead.mini { padding: 14px 16px 12px; background: var(--green); color: var(--on-green);
@@ -729,6 +730,48 @@
     background: var(--surface-2); color: var(--muted); font-size: 12px; cursor: pointer; line-height: 1; padding: 0; }
   .card.notesaved { background: color-mix(in srgb, var(--sage) 18%, var(--surface)); border-left: 3px solid var(--green-soft); }
   .card.notesaved p { font-size: 13.5px; line-height: 1.5; white-space: pre-wrap; }
+  /* informe v2: tarjetas de progresión y sesiones por semana */
+  .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 6px; }
+  .pcard { border: 1px solid var(--line-soft); border-radius: 11px; padding: 10px 11px; background: var(--surface); break-inside: avoid; }
+  .pcard .pc-n { margin: 0; font-size: 12.5px; font-weight: 700; line-height: 1.3; }
+  .pcard .pc-v { margin: 4px 0 2px; font-size: 12px; color: var(--muted); }
+  .pcard .pc-v b { font-family: var(--mono); font-size: 22px; color: var(--ink); font-weight: 500; }
+  .pcard .pc-v .deltapill { font-family: var(--mono); font-size: 10px; vertical-align: 3px; }
+  .pcard .spark { display: block; width: 100%; height: 34px; margin: 2px 0; }
+  .pcard .pc-f { margin: 2px 0 0; font-family: var(--mono); font-size: 9.5px; color: var(--muted); line-height: 1.45; }
+  .inf-q { margin-top: 10px; }
+  .inf-q input { width: 100%; }
+  .semchips { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 10px; }
+  .semchip { display: inline-flex; flex-direction: column; align-items: center; min-width: 58px; padding: 6px 10px; border-radius: 11px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; }
+  .semchip small { font-family: var(--mono); font-size: 9.5px; font-weight: 500; color: var(--muted); }
+  .semchip.on { background: linear-gradient(180deg, var(--green-hi), var(--green)); border-color: var(--green); color: var(--on-green); }
+  .semchip.on small { color: var(--sage); }
+  .rep-week { margin: 0 0 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .scard { border: 1px solid var(--line-soft); border-left: 3px solid var(--green); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; background: var(--surface); break-inside: avoid; }
+  .scard.xs { border-left-color: var(--gold); }
+  .sc-top { margin: 0; font-size: 13px; }
+  .sc-top b { font-family: var(--mono); font-weight: 500; }
+  .sc-top .ok { color: var(--green); font-weight: 700; }
+  .sc-sub { display: block; font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .evcs { display: flex; flex-wrap: wrap; gap: 5px; margin: 7px 0 2px; }
+  .evc { font-family: var(--mono); font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
+  .evc b { color: var(--ink); font-weight: 600; }
+  .evc.ok { background: color-mix(in srgb, var(--green) 14%, transparent); }
+  .evc.warn { background: var(--gold-bg); } .evc.warn b { color: var(--gold); }
+  .evc.bad { background: color-mix(in srgb, var(--clay) 18%, transparent); } .evc.bad b { color: var(--clay); }
+  .sc-l { margin: 6px 0 0; font-size: 12.5px; line-height: 1.45; }
+  .sc-l.dim { color: var(--muted); }
+  .sc-k { font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+  .sc-ex { list-style: none; margin: 7px 0 0; padding: 0; }
+  .sc-ex li { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-top: 1px dashed var(--line-soft); font-size: 12.5px; }
+  .sc-ex li b { font-family: var(--mono); font-weight: 500; white-space: nowrap; }
+  .sc-ex .dim { color: var(--muted); font-style: normal; font-size: 11px; }
+  .pesos { border-top: 4px solid var(--green); margin-top: 4px; }
+  .sscheme.addpeso { border: 1px dashed var(--gold); background: var(--gold-bg); color: var(--gold); border-radius: 8px; padding: 5px 9px; cursor: pointer; font-weight: 600; }
+  .pwrow { display: grid; grid-template-columns: 1fr 86px auto; align-items: center; gap: 8px; padding: 5px 0; border-top: 1px dashed var(--line-soft); font-size: 13.5px; font-weight: 600; }
+  .pwrow input { width: 100%; font-family: var(--mono); font-size: 16px; padding: 8px 10px; min-height: 42px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-2); color: var(--ink); text-align: right; }
+  .pwrow em { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--muted); }
   .pubcard { border-left: 3px solid var(--green); }
   .pubsteps { margin: 8px 0 10px; padding-left: 20px; font-size: 13px; line-height: 1.55; }
   .pubsteps a { color: var(--green); font-weight: 650; }
@@ -1453,7 +1496,7 @@ function emptyDay(nm) { return { nombre: nm, secciones: DEFAULT_SECTIONS.map(s =
 
 function freshState() {
   return {
-    tab: "plan", selWeek: 1, edit: false, planV: 11,
+    tab: "plan", selWeek: 1, edit: false, planV: 12,
     weekDone: {}, dayDone: {}, secDone: {}, selDay: {},
     routines: {}, compPick: {}, weekNotes: {}, dayNotes: {}, logs: {}, evals: {},
     comments: [], bodyLog: [], openHist: {}, seq: 1, lastBackupTs: 0,
@@ -1493,6 +1536,7 @@ let EVHIST = {}, NOTEHIST = {};   // desplegables "sesiones anteriores de este d
 let DAYOPEN = {};      // días ya completados que el usuario volvió a abrir
 let INFORME = null;    // {from,to} — informe a pantalla completa, sin nav, listo para imprimir
 let EXOPEN = {};       // ejercicios con el detalle de evolución abierto en Progreso
+let INFQ = "", INFSEM = null;   // informe: buscador de progresión y semana elegida en "sesión por sesión"
 /* Doble toque para borrar (confirm() nativo está bloqueado en el iframe del artifact) */
 let ASK = null, ASK_T = null;
 function armed(key) { return ASK === key; }
@@ -1521,13 +1565,13 @@ function diaSemanaDe(fecha) {
   return DIAS_SEM[d.getDay()] || "";
 }
 function fechaOrd(f) { const m = String(f).split("/"); return (parseInt(m[1], 10) || 0) * 100 + (parseInt(m[0], 10) || 0); }
-function sesKey(dk, fecha) { return dk + "@" + (fecha || hoy()); }
+function sesKey(dk, fecha) { return dk + "@" + (fecha || hoyS()); }
 function sesFechas(obj, dk) {
   const pre = dk + "@";
   return Object.keys(obj || {}).filter(k => k.indexOf(pre) === 0).map(k => k.slice(pre.length))
     .sort((a, b) => fechaOrd(a) - fechaOrd(b));
 }
-function sesPrevias(obj, dk) { const h = hoy(); return sesFechas(obj, dk).filter(f => f !== h); }
+function sesPrevias(obj, dk) { const h = hoyS(); return sesFechas(obj, dk).filter(f => f !== h); }
 function evalResumenTxt(e) {
   if (!e) return "";
   const p = [];
@@ -1710,6 +1754,97 @@ function migrateV11(st) {
   st.planV = 11;
   return st;
 }
+/* ---- A qué sesión pertenece un registro ----
+   Un día de la semana N puede entrenarse unos días tarde (el viernes de la 4 el lunes de
+   la 5). Un registro cuenta para la semana N si cae en su semana o, en los 7 días
+   siguientes, si ese ejercicio no existe en la semana N+1 (si existe, es de esa). */
+function enVentana(n, fecha) {
+  const a = weekStart(n), b = new Date(a); b.setDate(b.getDate() + 13);
+  const o = fechaOrd(fecha);
+  return o >= (a.getMonth() + 1) * 100 + a.getDate() && o <= (b.getMonth() + 1) * 100 + b.getDate();
+}
+function idsDeSemana(rut, n) {
+  const set = new Set(), r = n <= 12 ? rut(n) : null;
+  if (r && r.dias) r.dias.forEach(d => d.secciones.forEach(sx => sx.ejercicios.forEach(e => set.add(e.id))));
+  return set;
+}
+function propiosDe(rut, n, di) {          // ids que solo están en ese día (sin complementarios)
+  const dias = rut(n).dias, otros = {};
+  dias.forEach((d, i) => { if (i !== di) d.secciones.forEach(sx => sx.ejercicios.forEach(e => { otros[e.id] = 1; })); });
+  const out = [];
+  dias[di].secciones.forEach(sx => { if (!sx.menu) sx.ejercicios.forEach(e => { if (!otros[e.id]) out.push(e.id); }); });
+  return out;
+}
+function perteneceA(n, id, fecha, sig) { return enSemana(n, fecha) || (enVentana(n, fecha) && !sig.has(id)); }
+function fechasDiaDe(st, rut, n, di) {
+  const dk = n + "-" + di, sig = idsDeSemana(rut, n + 1), fs = {};
+  const t = f => fs[f] || (fs[f] = { real: 0, auto: 0 });
+  propiosDe(rut, n, di).forEach(id => ((st.logs || {})[id] || []).forEach(l => {
+    if (!perteneceA(n, id, l.fecha, sig)) return;
+    if (l.auto) t(l.fecha).auto++; else t(l.fecha).real++;
+  }));
+  [st.evals, st.dayNotes].forEach(obj => Object.keys(obj || {}).forEach(k => {
+    const at = k.split("@");
+    if (at[0] === dk && at[1] && at[1] !== "s/f" && enVentana(n, at[1]) && obj[k]) t(at[1]);
+  }));
+  return fs;
+}
+/* El día en que se entrenó: la primera fecha con algo anotado a mano (lo posterior son
+   vueltas para completar); si todo fue automático, la primera con tildes. */
+function fechaPrincipalDe(fs) {
+  const fx = Object.keys(fs).sort((a, b) => fechaOrd(a) - fechaOrd(b));
+  return fx.find(f => fs[f].real) || fx.find(f => fs[f].auto) || fx[0] || null;
+}
+/* v11→v12: un día del plan = una sesión. Con el modelo "todo es de hoy", volver a un día
+   ya hecho (para cargar la rodilla a 24 h o un peso olvidado) creaba otra sesión con otra
+   fecha: tildes repetidos, evaluaciones partidas y pesos sueltos. Todo lo de esas vueltas
+   pasa a la fecha en que se entrenó: un peso real reemplaza a un ✓, la evaluación solo
+   completa lo que faltaba y lo repetido se descarta. */
+function migrateV12(st) {
+  const rut = n => (st.routines && st.routines[n] && st.routines[n].dias) ? st.routines[n] : SEED.semanas[n - 1];
+  for (let n = 1; n <= 12; n++) {
+    const sig = idsDeSemana(rut, n + 1);
+    rut(n).dias.forEach((d, di) => {
+      const dk = n + "-" + di, fs = fechasDiaDe(st, rut, n, di), main = fechaPrincipalDe(fs);
+      if (!main) return;
+      const otras = Object.keys(fs).filter(f => f !== main);
+      if (!otras.length) return;
+      propiosDe(rut, n, di).forEach(id => {
+        const l = (st.logs || {})[id];
+        if (!l) return;
+        const enMain = l.filter(x => x.fecha === main);
+        const movidos = l.filter(x => otras.indexOf(x.fecha) >= 0 && perteneceA(n, id, x.fecha, sig));
+        if (!movidos.length) return;
+        const resto = l.filter(x => movidos.indexOf(x) < 0);
+        const numMain = enMain.some(x => num(x.peso) !== null);
+        const numMov = movidos.filter(x => num(x.peso) !== null);
+        if (!numMain && numMov.length) {
+          // el peso olvidado se carga en el día del entreno y reemplaza a su ✓
+          const sinTilde = resto.filter(x => !(x.fecha === main && x.peso === "✓"));
+          numMov.forEach(x => sinTilde.push(Object.assign({}, x, { fecha: main, auto: false })));
+          st.logs[id] = sinTilde;
+        } else if (!enMain.length) {
+          st.logs[id] = resto.concat(Object.assign({}, movidos[0], { fecha: main }));
+        } else {
+          st.logs[id] = resto;
+        }
+        st.logs[id].forEach(x => { if (x.auto === false) delete x.auto; });
+        st.logs[id].sort((x, y) => fechaOrd(x.fecha) - fechaOrd(y.fecha));
+      });
+      otras.forEach(f => {
+        const ke = dk + "@" + f, km = dk + "@" + main;
+        if (st.evals && st.evals[ke]) {
+          const a = st.evals[km] || {};
+          Object.keys(st.evals[ke]).forEach(c => { const v = st.evals[ke][c]; if (v != null && v !== "" && (a[c] == null || a[c] === "")) a[c] = v; });
+          st.evals[km] = a; delete st.evals[ke];
+        }
+        if (st.dayNotes && st.dayNotes[ke]) { st.dayNotes[km] = [st.dayNotes[km], st.dayNotes[ke]].filter(Boolean).join(" · "); delete st.dayNotes[ke]; }
+      });
+    });
+  }
+  st.planV = 12;
+  return st;
+}
 function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
@@ -1760,6 +1895,7 @@ function load() {
     if ((parsed.planV || 0) < 9) migrateV9(st);
     if ((parsed.planV || 0) < 10) migrateV10(st);
     if ((parsed.planV || 0) < 11) migrateV11(st);
+    if ((parsed.planV || 0) < 12) migrateV12(st);
     Object.keys(st.routines || {}).forEach(k => {
       const r = st.routines[k];
       if (Array.isArray(r)) {
@@ -1787,6 +1923,12 @@ function routineFor(n) {
 const $ = sel => document.querySelector(sel);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 function hoy() { const d = new Date(); return d.getDate() + "/" + (d.getMonth() + 1); }
+/* Fecha de la sesión que está en pantalla. Al volver a un día ya entrenado (para cargar
+   el dolor a 24 h o un peso olvidado) todo se anota en la fecha de ESA sesión, no en la
+   de hoy: antes se duplicaba el día con tildes automáticos y evaluaciones sueltas. */
+let FECHA_CTX = null;
+let SESHOY = {};       // días en los que Mauro pidió anotar como hoy
+function hoyS() { return FECHA_CTX || hoy(); }
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 function weekStart(n) { const d = new Date(FECHA_INICIO); d.setDate(d.getDate() + (n - 1) * 7); return d; }
 function weekRange(n) {
@@ -1802,7 +1944,7 @@ function curWeek() {
 function nfmt(v) { return String(Number(v).toFixed(1)).replace(/\.0$/, "").replace(".", ","); }
 function num(v) { const x = parseFloat(String(v).replace(",", ".")); return isNaN(x) ? null : x; }
 function lastLog(id) { const l = S.logs[id]; return l && l.length ? l[l.length - 1] : null; }
-function todayLogs(id) { const h = hoy(); return (S.logs[id] || []).filter(l => l.fecha === h); }
+function todayLogs(id) { const h = hoyS(); return (S.logs[id] || []).filter(l => l.fecha === h); }
 function logsEnFecha(id, f) { return (S.logs[id] || []).filter(l => l.fecha === f); }
 function bestPerDate(logs) {
   const by = {};
@@ -1892,6 +2034,7 @@ function render() {
     return;
   }
   document.body.classList.remove("reporting");
+  FECHA_CTX = null;      // viewSemana la fija si hay un día en pantalla
   const keep = {};
   document.querySelectorAll("#app input, #app textarea").forEach(el => {
     if (el.id && el.value) keep[el.id] = el.value;
@@ -2112,6 +2255,8 @@ function viewSemana() {
   if (xsel && !S.edit) return h + viewExtras(n);
 
   const dk = n + "-" + di;
+  const fPrin = fechaPrincipalDe(fechasDiaDe(S, routineFor, n, di));
+  FECHA_CTX = SESHOY[dk] || !fPrin ? hoy() : fPrin;
   if (day.nombre.includes("·")) {
     h += `<p class="meso-obj" style="margin-top:8px;margin-bottom:4px"><b>${esc(day.nombre.split("·")[1].trim())}</b>${day.nota ? " — " + esc(day.nota) : ""}</p>`;
   } else if (day.nota) {
@@ -2126,7 +2271,13 @@ function viewSemana() {
   day.secciones.forEach(sec => {
     (sec.menu ? sec.ejercicios.filter(e => picksHoy.includes(e.id)) : sec.ejercicios).forEach(e => { dTot++; if (todayLogs(e.id).length) dDone++; });
   });
-  if (dTot) h += `<div class="dayprog"><div class="bar"><span style="width:${Math.round(100 * dDone / dTot)}%"></span></div><span class="lbl">${dDone}/${dTot} hechos hoy</span></div>`;
+  const esHoy = hoyS() === hoy();
+  if (!esHoy || (SESHOY[dk] && fPrin && fPrin !== hoy())) {
+    h += esHoy
+      ? `<p class="viewnote">Anotando como <b>hoy (${esc(hoy())})</b>. <button class="mini" onclick="sesionHoy('${dk}',false)">Volver a la sesión del ${esc(diaSemanaDe(fPrin))} ${esc(fPrin)}</button></p>`
+      : `<p class="viewnote">Sesión del <b>${esc(diaSemanaDe(hoyS()))} ${esc(hoyS())}</b>: lo que marques o anotes (pesos, rodilla a 24 h) queda en esa fecha. <button class="mini" onclick="sesionHoy('${dk}',true)">Lo hice hoy de nuevo</button></p>`;
+  }
+  if (dTot) h += `<div class="dayprog"><div class="bar"><span style="width:${Math.round(100 * dDone / dTot)}%"></span></div><span class="lbl">${dDone}/${dTot} hechos${esHoy ? " hoy" : " el " + esc(hoyS())}</span></div>`;
   // Calentamiento completo: 13 de los 19 ejercicios del día en un solo toque
   const plegado = S.dayDone[dk] && !DAYOPEN[dk] && !S.edit;
   if (!S.edit && !plegado) {
@@ -2180,12 +2331,6 @@ function viewSemana() {
       </div>`;
     return h;
   }
-  if (S.dayDone[dk] && DAYOPEN[dk]) {
-    const fs = sesFechas(S.evals, dk).concat(sesFechas(S.dayNotes, dk)).sort((a, b) => fechaOrd(b) - fechaOrd(a))[0];
-    if (fs && fs !== hoy()) {
-      h += `<p class="viewnote">Este entreno se registró el <b>${esc(fs)}</b>. Lo que marques ahora se guarda con la fecha de hoy (${esc(hoy())}).</p>`;
-    }
-  }
   const dayEmpty = !day.secciones.reduce((a, s) => a + s.ejercicios.length, 0);
   if (dayEmpty && !S.edit) {
     h += `<div class="card"><p class="small muted">Este día no tiene ejercicios cargados todavía.</p></div>`;
@@ -2209,6 +2354,7 @@ function viewSemana() {
         <button class="stick ${done ? "done" : ""}" onclick="toggleSec('${sk}')" aria-label="${done ? "Etapa hecha" : "Marcar etapa"}">✓</button>
       </div>`;
     }
+    if (PESOS && PESOS.sk === sk && !S.edit) h += pesosPanel();
     if (!open) return;
     if (sec.menu && !S.edit) { h += menuHtml(sec, n, di, si); return; }
     if (FORM && FORM.week === n && FORM.di === di && FORM.si === si && FORM.ei === null) h += formHtml(null);
@@ -2219,6 +2365,7 @@ function viewSemana() {
       if (sec.menu) { const g = (sec.grupos || []).find(g2 => g2.ejercicios[0] && g2.ejercicios[0].id === exo.id); if (g) h += `<p class="menu-sub">${esc(g.nombre)}</p>`; }
       if (FORM && FORM.week === n && FORM.di === di && FORM.si === si && FORM.ei === ei) { h += formHtml(exo); return; }
       h += exCard(exo, { week: n, di, si, ei });
+      if (PESOS && PESOS.single === exo.id && !S.edit) h += pesosPanel();
     });
   });
 
@@ -2314,7 +2461,7 @@ function menuHtml(sec, n, di, si) {
       <div class="menu-group ${elegidos.length ? "picked" : ""}">
         <p class="menu-lab">${esc(g.nombre)}${elegidos.length ? `<span class="menu-n">${elegidos.length}</span>` : ""}</p>
         <div class="menu-chips">${g.ejercicios.map(e => `<button class="mchip ${picks.includes(e.id) ? "on" : ""}" onclick="togglePick(${n},${di},'${esc(e.id)}')">${esc(e.nombre)}${e.esquema ? `<small>${esc(e.esquema)}</small>` : ""}</button>`).join("")}</div>
-        ${elegidos.map(e => exCard(e, null)).join("")}
+        ${elegidos.map(e => exCard(e, null) + (PESOS && PESOS.single === e.id ? pesosPanel() : "")).join("")}
       </div>`;
   });
   (sec.ejercicios || []).filter(e => !enGrupo.has(e.id)).forEach(e => { h += exCard(e, null); });
@@ -2351,6 +2498,36 @@ function viewSuelto(id) {
   return h;
 }
 
+let PESOS = null;      // panel "¿con qué peso?" abierto: { single: id } o { sk: etapa }, con sus ids
+function esMB(exo) { return /medicine ball|^mb /i.test(String(exo && exo.nombre || "")); }
+/* Peso sugerido: el último anotado de ese ejercicio. Martín cambia los ids entre semanas,
+   así que si no hay, se busca el último del mismo nombre. La medicine ball, siempre 5. */
+function pesoSugerido(exo) {
+  if (esMB(exo)) return "5";
+  const real = l => num(l.peso) !== null;
+  const propio = (S.logs[exo.id] || []).filter(real);
+  if (propio.length) return propio[propio.length - 1].peso;
+  const nom = String(exo.nombre).trim().toLowerCase();
+  let mejor = null;
+  walkAll(e => {
+    if (String(e.nombre).trim().toLowerCase() !== nom) return;
+    (S.logs[e.id] || []).filter(real).forEach(l => { if (!mejor || fechaOrd(l.fecha) >= fechaOrd(mejor.fecha)) mejor = l; });
+  });
+  return mejor ? mejor.peso : "";
+}
+function pesosPanel() {
+  if (!PESOS) return "";
+  return `<div class="card pesos">
+    <p class="evhead">¿Con qué peso?</p>
+    <p class="small muted" style="margin:2px 0 8px">${PESOS.single ? "Te dejo el último que anotaste." : "Los ejercicios con carga de esta etapa. Te dejo el último peso de cada uno."} Si no usaste peso, tocá <b>Sin peso</b>.</p>
+    ${PESOS.ids.map(id => { const e = exById(id) || { nombre: id }; return `<label class="pwrow"><span>${esc(e.nombre)}</span>
+      <input type="text" id="pw-${esc(id)}" value="${esc(pesoSugerido(e))}" placeholder="kg" inputmode="decimal"><em>kg</em></label>`; }).join("")}
+    <div class="rowbtns" style="margin-top:10px">
+      <button class="btn primary" onclick="guardarPesos()">Guardar</button>
+      <button class="btn" onclick="sinPesos()">Sin peso</button>
+      <button class="btn ghost" onclick="cancelarPesos()">Cancelar</button>
+    </div></div>`;
+}
 /* Esquema + RPE objetivo de Martín (desde el Mesociclo 2) */
 function esqHtml(exo) {
   return esc(exo.esquema || "") + (exo.rpe ? `<small class="rpe">RPE ${esc(exo.rpe)}</small>` : "");
@@ -2392,7 +2569,9 @@ function exCard(exo, pos) {
       <div class="ex-slim ${doneHoy ? "done" : ""} ${sub ? "hasub" : ""}">
         <button class="stick ${doneHoy ? "done" : ""}" onclick="${doneHoy ? "undoDone" : "markDone"}('${esc(exo.id)}')" aria-label="${doneHoy ? "Deshacer" : "Marcar hecho"}">✓</button>
         <button class="sname asbtn" onclick="expandEx('${esc(exo.id)}')">${esc(exo.nombre)}${sub}</button>
-        <span class="sscheme ${vals.length ? "val" : ""}">${vals.length ? esc(vals.join(" · ")) : esqHtml(exo)}</span>
+        ${doneHoy && !vals.length && !esMB(exo)
+          ? `<button class="sscheme addpeso" onclick="pedirPeso('${esc(exo.id)}')">+ peso</button>`
+          : `<span class="sscheme ${vals.length ? "val" : ""}">${vals.length ? esc(vals.join(" · ")) : esqHtml(exo)}</span>`}
         ${ibtn}
         ${slink}
       </div>${obsHtml}</div>`;
@@ -2783,7 +2962,7 @@ window.openWeek = n => {
 window.openSuelto = id => { S.selWeek = id; S.tab = "semana"; FORM = null; DFORM = null; ASK = null; save(); render(); window.scrollTo(0, 0); };
 window.openCal = () => { S.selWeek = "cal"; S.tab = "semana"; FORM = null; DFORM = null; ASK = null; save(); render(); window.scrollTo(0, 0); };
 window.toggleFase = i => { CALOPEN[i] = !CALOPEN[i]; render(); };
-window.selDay = (n, i) => { S.selDay[n] = i; XFORM = null; FORM = null; DFORM = null; ASK = null; DAYOPEN = {}; save(); render(); window.scrollTo(0, 0); };
+window.selDay = (n, i) => { S.selDay[n] = i; XFORM = null; PESOS = null; FORM = null; DFORM = null; ASK = null; DAYOPEN = {}; save(); render(); window.scrollTo(0, 0); };
 window.toggleDone = n => { S.weekDone[n] = !S.weekDone[n]; save(); render(); if (S.weekDone[n]) autoPublicar(); };
 window.toggleDayDone = dk => {
   S.dayDone[dk] = !S.dayDone[dk];
@@ -2792,6 +2971,7 @@ window.toggleDayDone = dk => {
   if (S.dayDone[dk]) autoPublicar();
 };
 window.openDay = dk => { DAYOPEN[dk] = true; render(); };
+window.sesionHoy = (dk, v) => { SESHOY[dk] = v; PESOS = null; render(); };
 /* Marcar una etapa tilda todos sus ejercicios y la minimiza. Destildar borra SOLO
    los registros automáticos: un peso anotado a mano nunca se pierde. */
 function secDe(sk) {
@@ -2812,18 +2992,28 @@ function secEjercicios(sk) {
 function autoDone(id) {
   if (todayLogs(id).length) return;               // ya hay algo de hoy: no pisar
   if (!S.logs[id]) S.logs[id] = [];
-  S.logs[id].push({ fecha: hoy(), peso: "✓", esf: "", nota: "", auto: true });
+  const exo = exById(id);
+  // la medicine ball es siempre de 5 kg: se anota sola
+  S.logs[id].push({ fecha: hoyS(), peso: exo && esMB(exo) ? "5" : "✓", esf: "", nota: "", auto: true });
 }
 function autoUndo(id) {
-  const h = hoy(), l = S.logs[id] || [];
+  const h = hoyS(), l = S.logs[id] || [];
   S.logs[id] = l.filter(x => !(x.fecha === h && x.auto));
   if (!S.logs[id].length) delete S.logs[id];
 }
 window.toggleSec = sk => {
   const marcar = !S.secDone[sk];
-  secEjercicios(sk).forEach(e => marcar ? autoDone(e.id) : autoUndo(e.id));
+  const sec = secDe(sk);
+  const calent = sec && SEC_CALENT.some(t => sec.nombre.toLowerCase().includes(t));
+  const conCarga = [];
+  secEjercicios(sk).forEach(e => {
+    if (!marcar) { autoUndo(e.id); return; }
+    if (!calent && !e.sinPeso && !esMB(e) && !todayLogs(e.id).length) conCarga.push(e.id);
+    else autoDone(e.id);
+  });
   S.secDone[sk] = marcar;
   if (marcar) { SECOPEN[sk] = false; POP = null; }
+  PESOS = marcar && conCarga.length ? { sk, ids: conCarga } : null;
   ASK = null; save(); render();
 };
 /* Calentamiento completo: movilidad + activación + preparación específica de una */
@@ -2868,6 +3058,8 @@ window.clearNote = dk => {
 };
 window.setFiltQ = v => { FILTQ = v; render(); };
 window.toggleExo = k => { EXOPEN[k] = !EXOPEN[k]; render(); };
+window.setInfQ = v => { INFQ = v; render(); };
+window.setInfSem = n => { INFSEM = n; render(); };
 window.setFiltW = v => { FILTW = v; render(); };
 window.setCFiltW = v => { CFILTW = v; render(); };
 window.setCFiltQ = v => { CFILTQ = v; render(); };
@@ -2895,14 +3087,45 @@ window.delEvalSes = (dk, f) => {
 window.toggleEvHist = dk => { EVHIST[dk] = !EVHIST[dk]; render(); };
 window.toggleNoteHist = dk => { NOTEHIST[dk] = !NOTEHIST[dk]; render(); };
 
+/* Tildar un ejercicio con carga pregunta el peso (sugiere el último). Mauro usa el mismo
+   peso en todas las series, así que con uno alcanza. */
 window.markDone = id => {
-  if (!todayLogs(id).length) { if (!S.logs[id]) S.logs[id] = []; S.logs[id].push({ fecha: hoy(), peso: "✓", esf: "", nota: "" }); }
+  const exo = exById(id);
+  if (exo && !exo.sinPeso && !todayLogs(id).length) { PESOS = { single: id, ids: [id] }; ASK = null; render(); return; }
+  if (!todayLogs(id).length) { if (!S.logs[id]) S.logs[id] = []; S.logs[id].push({ fecha: hoyS(), peso: "✓", esf: "", nota: "" }); }
   EXPANDED[id] = false; POP = id; ASK = null; save(); render();
+};
+window.pedirPeso = id => { PESOS = { single: id, ids: [id] }; ASK = null; render(); };
+window.guardarPesos = () => {
+  if (!PESOS) return;
+  const auto = !PESOS.single;
+  PESOS.ids.forEach(id => {
+    const el = document.getElementById("pw-" + id);
+    const v = el ? el.value.trim().replace(/\s*kg$/i, "") : "";
+    if (!S.logs[id]) S.logs[id] = [];
+    const f = hoyS();
+    S.logs[id] = S.logs[id].filter(l => !(l.fecha === f && l.peso === "✓"));
+    S.logs[id].push(Object.assign({ fecha: f, peso: v || "✓", esf: "", nota: "" }, auto && !v ? { auto: true } : {}));
+    EXPANDED[id] = false;
+  });
+  POP = PESOS.single || null; PESOS = null; save(); render();
+};
+window.sinPesos = () => {
+  if (!PESOS) return;
+  PESOS.ids.forEach(id => { if (!todayLogs(id).length) { if (!S.logs[id]) S.logs[id] = []; S.logs[id].push(Object.assign({ fecha: hoyS(), peso: "✓", esf: "", nota: "" }, PESOS.single ? {} : { auto: true })); } });
+  POP = PESOS.single || null; PESOS = null; save(); render();
+};
+window.cancelarPesos = () => {
+  if (PESOS && PESOS.sk) {     // cancelar el tilde de la etapa: se deshace todo lo automático
+    secEjercicios(PESOS.sk).forEach(e => autoUndo(e.id));
+    S.secDone[PESOS.sk] = false;
+  }
+  PESOS = null; save(); render();
 };
 window.collapseEx = id => { EXPANDED[id] = false; render(); };
 window.expandEx = id => { EXPANDED[id] = true; render(); };
 window.undoDone = id => {
-  const l = S.logs[id] || [], h = hoy();
+  const l = S.logs[id] || [], h = hoyS();
   if (l.some(x => x.fecha === h && x.peso !== "✓")) { EXPANDED[id] = true; render(); return; }   // hay datos reales: abrir, nunca borrar
   S.logs[id] = l.filter(x => !(x.fecha === h && x.peso === "✓"));
   if (!S.logs[id].length) delete S.logs[id];
@@ -2913,7 +3136,7 @@ window.addLog = id => {
   const peso = (w.value || "").trim();
   if (!peso) { w.focus(); return; }
   if (!S.logs[id]) S.logs[id] = [];
-  S.logs[id].push({ fecha: hoy(), peso, esf: (ef.value || "").trim(), nota: (nt.value || "").trim() });
+  S.logs[id].push({ fecha: hoyS(), peso, esf: (ef.value || "").trim(), nota: (nt.value || "").trim() });
   w.value = ""; ef.value = ""; nt.value = "";
   EXPANDED[id] = false; POP = id;  // anotar = hecho ✓ y se cierra; el peso queda visible en la fila
   ASK = null;
@@ -2924,7 +3147,7 @@ window.addLog = id => {
 };
 window.addDone = id => {
   if (!S.logs[id]) S.logs[id] = [];
-  const h = hoy();
+  const h = hoyS();
   const ya = S.logs[id].findIndex(l => l.fecha === h);
   if (ya >= 0) S.logs[id].splice(ya, 1);
   else S.logs[id].push({ fecha: h, peso: "✓", esf: "", nota: "" });
@@ -3411,44 +3634,66 @@ function idsPropios(n, di) {
   (dias[di] ? dias[di].secciones : []).forEach(sx => sx.ejercicios.forEach(e => { if (!otros[e.id]) out[e.id] = 1; }));
   return out;
 }
+/* Una sesión = un día del plan en una fecha. Cada registro se atribuye al día y la
+   semana a los que pertenece (perteneceA), así un viernes hecho el lunes siguiente sigue
+   siendo el viernes de su semana, y dos entrenos el mismo día salen como dos sesiones.
+   Complementarios: solo los elegidos ese día. Una fecha con solo tildes automáticos,
+   si el día tiene otra sesión de verdad, no es una sesión: es un re-tilde. */
 function sesionesPlan(fromW, toW) {
-  const porFecha = {};
-  const tocar = f => porFecha[f] || (porFecha[f] = { fecha: f, regs: [], vistos: {}, cuenta: {}, dias: {} });
+  const out = [];
   for (let n = fromW; n <= toW; n++) {
+    const sig = idsDeSemana(routineFor, n + 1);
     routineFor(n).dias.forEach((d, di) => {
-      const dk = n + "-" + di;
-      const propios = idsPropios(n, di);
-      sesFechas(S.evals, dk).concat(sesFechas(S.dayNotes, dk)).forEach(f => {
-        if (f === "s/f" || !enSemana(n, f)) return;
-        const o = tocar(f);
-        o.dias[dk] = { n, di, dia: d.nombre };
-        o.cuenta[dk] = (o.cuenta[dk] || 0) + 1;
+      const dk = n + "-" + di, picks = pickList(n, di), porF = {};
+      const t = f => porF[f] || (porF[f] = { regs: [] });
+      d.secciones.forEach((sx, si) => {
+        if (!sx.menu) sx.ejercicios.forEach(e => (S.logs[e.id] || []).forEach(l => {
+          if (perteneceA(n, e.id, l.fecha, sig)) t(l.fecha).regs.push({ ex: e, log: l, si, sec: sx });
+        }));
       });
-      d.secciones.forEach(sx => sx.ejercicios.forEach(e => (S.logs[e.id] || []).forEach((l, li) => {
-        if (!enSemana(n, l.fecha)) return;
-        const o = tocar(l.fecha);
-        o.dias[dk] = { n, di, dia: d.nombre };
-        // solo los ejercicios propios del día deciden de qué día fue la sesión
-        if (propios[e.id]) o.cuenta[dk] = (o.cuenta[dk] || 0) + (l.peso !== "✓" ? 5 : 2);
-        const clave = e.id + "#" + li;
-        if (!o.vistos[clave]) { o.vistos[clave] = 1; o.regs.push({ ex: e, log: l }); }
-      })));
+      [S.evals, S.dayNotes].forEach(obj => Object.keys(obj || {}).forEach(k => {
+        const at = k.split("@");
+        if (at[0] === dk && at[1] && at[1] !== "s/f" && enVentana(n, at[1]) && obj[k]) t(at[1]);
+      }));
+      // los complementarios se comparten entre días: solo se suman a una sesión que ya existe
+      d.secciones.forEach((sx, si) => {
+        if (sx.menu) sx.ejercicios.filter(e => picks.includes(e.id)).forEach(e => (S.logs[e.id] || []).forEach(l => {
+          if (porF[l.fecha] && perteneceA(n, e.id, l.fecha, sig)) porF[l.fecha].regs.push({ ex: e, log: l, si, sec: sx });
+        }));
+      });
+      const fechas = Object.keys(porF);
+      const real = f => porF[f].regs.some(r => !r.log.auto) || evalResumenTxt(S.evals[sesKey(dk, f)]) || (S.dayNotes[sesKey(dk, f)] || "").trim();
+      const hayReal = fechas.some(real);
+      fechas.forEach(f => {
+        if (hayReal && !real(f)) return;
+        if (!porF[f].regs.length && !real(f)) return;
+        out.push({ n, di, dk, fecha: f, dia: d.nombre, dias: d, ev: S.evals[sesKey(dk, f)] || {},
+          nota: (S.dayNotes[sesKey(dk, f)] || "").trim(), regs: porF[f].regs });
+      });
     });
   }
-  return Object.keys(porFecha).sort((a, b) => fechaOrd(a) - fechaOrd(b)).map(f => {
-    const o = porFecha[f];
-    const dk = Object.keys(o.cuenta).sort((a, b) => o.cuenta[b] - o.cuenta[a])[0] || Object.keys(o.dias)[0];
-    const info = o.dias[dk] || { n: fromW, di: 0, dia: "" };
-    // la evaluación y la nota de esa fecha, la haya cargado el día que la haya cargado
-    let ev = {}, nota = "";
-    Object.keys(o.dias).forEach(k => {
-      const e2 = S.evals[sesKey(k, f)];
-      if (e2 && evalResumenTxt(e2) && !evalResumenTxt(ev)) ev = e2;
-      const n2 = (S.dayNotes[sesKey(k, f)] || "").trim();
-      if (n2 && !nota) nota = n2;
+  return out.sort((x, y) => fechaOrd(x.fecha) - fechaOrd(y.fecha) || x.n - y.n || x.di - y.di);
+}
+/* Lo que se hizo en una sesión, por etapa: calentamiento resumido (no 13 nombres),
+   bloque principal con su carga, complementarios elegidos, y lo que quedó sin hacer. */
+function resumenSesion(x) {
+  const hechos = {};
+  x.regs.forEach(r => { (hechos[r.ex.id] = hechos[r.ex.id] || []).push(r.log); });
+  const calent = { hechos: 0, total: 0 }, main = [], comp = [], falta = [];
+  x.dias.secciones.forEach(sx => {
+    const esCal = SEC_CALENT.some(t => sx.nombre.toLowerCase().includes(t));
+    if (sx.menu) { sx.ejercicios.forEach(e => { if (hechos[e.id]) comp.push(e); }); return; }
+    sx.ejercicios.forEach(e => {
+      if (esCal) { calent.total++; if (hechos[e.id]) calent.hechos++; return; }
+      if (/técnica de brazada/i.test(sx.nombre)) { if (hechos[e.id]) comp.push(e); return; }
+      if (hechos[e.id]) {
+        let pesos = hechos[e.id].map(l => num(l.peso)).filter(p => p !== null).map(nfmt);
+        if (!pesos.length && esMB(e)) pesos = ["5"];          // la medicine ball es siempre de 5 kg
+        main.push({ ex: e, pesos: pesos.filter((p, i) => pesos.indexOf(p) === i) });
+      } else falta.push(e);
     });
-    return { n: info.n, di: info.di, dk, fecha: f, dia: info.dia, ev, nota, regs: o.regs };
   });
+  return { calent, main, comp, falta };
 }
 /* Sesiones del plan + pádel, en orden de fecha. Los partidos entran a los gráficos de
    RPE y de rodilla: para Martín un partido es carga igual que un entreno. */
@@ -3582,11 +3827,12 @@ function textoInforme() {
     t += "\n" + x.fecha + " " + diaSemanaDe(x.fecha) + " · Semana " + x.n + " · " + x.dia + (S.dayDone[x.dk] ? " ✓" : "") + "\n";
     const ev = evalResumenTxt(x.ev);
     if (ev) t += "  " + ev + "\n";
+    const r = resumenSesion(x);
+    if (r.calent.total) t += "  Calentamiento: " + (r.calent.hechos === r.calent.total ? "completo" : r.calent.hechos + " de " + r.calent.total) + "\n";
+    if (r.main.length) t += "  " + r.main.map(m => m.ex.nombre + " " + (m.pesos.length ? m.pesos.join("/") + " kg" : m.ex.sinPeso ? "✓" : "(sin peso anotado)")).join(" · ") + "\n";
+    if (r.comp.length) t += "  Complementarios: " + r.comp.map(e => e.nombre).join(" · ") + "\n";
+    if (r.falta.length && S.dayDone[x.dk]) t += "  No hizo: " + r.falta.map(e => e.nombre).join(" · ") + "\n";
     if (x.nota) t += "  Nota: " + x.nota + "\n";
-    const conP = x.regs.filter(r => r.log.peso !== "✓");
-    if (conP.length) t += "  " + conP.map(r => r.ex.nombre + " " + r.log.peso).join(" · ") + "\n";
-    const sinP = x.regs.filter(r => r.log.peso === "✓");
-    if (sinP.length) t += "  Sin carga (" + sinP.length + "): " + sinP.map(r => r.ex.nombre).join(" · ") + "\n";
   });
   const bl = S.bodyLog.filter(b => num(b.peso) !== null);
   if (bl.length) t += "\nPESO CORPORAL: " + bl.map(b => b.peso + " el " + b.fecha).join(" → ") + "\n";
@@ -3777,7 +4023,7 @@ function viewInforme() {
     <p class="rep-kpis">
       <span class="rk"><b>${hechas}/${plan}</b><span>sesiones completadas</span></span>
       <span class="rk"><b>${plan ? Math.round(100 * hechas / plan) : 0}%</b><span>del plan</span></span>
-      <span class="rk"><b>${ses.length}</b><span>días con registro</span></span>
+      <span class="rk"><b>${ses.length}</b><span>sesiones con registro</span></span>
       ${xsI.length ? `<span class="rk"><b>${xsI.length}</b><span>${xsI.length > 1 ? "partidos de pádel" : "partido de pádel"}</span></span>` : ""}
     </p>
     ${barChart(filas, { fmt: adhFmt })}
@@ -3812,71 +4058,78 @@ function viewInforme() {
       <p class="rep-note muted">Peso × repeticiones del esquema, sumado sobre todos los ejercicios con carga.</p></section>`;
   }
 
-  // --- progresión por ejercicio ---
+  // --- progresión por ejercicio: los 4 básicos a la vista, el resto con el buscador ---
   const ejs = cargasPorEjercicio(from, to);
   if (ejs.length) {
-    h += `<section class="rep-sec long"><h2>Progresión de cargas</h2>
-      <table class="rep-tab"><thead><tr><th>Ejercicio</th><th>Sesión a sesión</th><th class="r">Progreso</th></tr></thead><tbody>`;
-    ejs.forEach(m => {
-      const ult = m.serie[m.serie.length - 1];
+    const CLAVE = ["trap bar deadlift", "hip thrust", "press banca", "rfess (búlgara)", "landmine press", "dominadas asistidas", "press inclinado con mancuernas"];
+    const top = [];
+    CLAVE.forEach(k => { const m = ejs.find(e => e.nombre.toLowerCase() === k); if (m && top.length < 4) top.push(m); });
+    ejs.slice().sort((x, y) => y.fechas.length - x.fechas.length).forEach(m => { if (top.length < 4 && top.indexOf(m) < 0) top.push(m); });
+    const q = INFQ.trim().toLowerCase();
+    const extra = q ? ejs.filter(m => top.indexOf(m) < 0 && m.nombre.toLowerCase().includes(q)).slice(0, 6) : [];
+    const card = m => {
+      const ult = m.serie[m.serie.length - 1], ini = m.serie[0];
       const tope = m.serie.length > 1 && (m.inverso ? ult <= m.pr : ult >= m.pr);
-      const pctPR = m.pr ? Math.round(100 * (m.inverso ? m.pr / ult : ult / m.pr)) : null;
-      h += `<tr>
-        <td><b>${esc(m.nombre)}</b>${tope ? ' <span class="pr">PR</span>' : ""}
-          <br><span class="dim">${esc(m.esquemas.join(" → ") || "—")}${m.inverso ? " · el peso es la asistencia: menos es mejor" : ""}</span></td>
-        <td class="mono sm">${m.fechas.map(f => {
-          const v = m.regs.filter(r => r.fecha === f).map(r => esc(r.peso)).join(" · ");
-          return '<span class="dim">' + esc(f) + "</span>  " + v + " kg";
-        }).join("<br>")}</td>
-        <td class="r mono ${m.mejora > 0 ? "up" : m.mejora < 0 ? "down" : ""}">${m.delta === null
-          ? '<span class="dim">1ª vez</span>'
-          : (m.delta > 0 ? "+" : "") + nfmt(m.delta) + " kg" +
-            (m.pct !== null ? '<br><span class="dim">' + (m.pct > 0 ? "+" : "") + m.pct + "%</span>" : "")}
-          <br><span class="dim">PR ${nfmt(m.pr)} kg${pctPR !== null && !tope ? " · al " + pctPR + "%" : ""}</span></td>
-      </tr>`;
-    });
-    h += `</tbody></table>
-      <p class="rep-note muted">Se agrupa por ejercicio aunque cambie el esquema entre semanas. Varias cargas en una misma fecha son las series de ese día.</p></section>`;
+      return `<div class="pcard">
+        <p class="pc-n">${esc(m.nombre)}${tope ? ' <span class="pr">PR</span>' : ""}</p>
+        <p class="pc-v"><b>${nfmt(ult)}</b> kg${m.delta !== null && m.delta !== 0 ? ` <span class="deltapill ${m.mejora > 0 ? "up" : "down"}">${m.delta > 0 ? "+" : ""}${nfmt(m.delta)} kg${m.pct ? " · " + (m.pct > 0 ? "+" : "") + m.pct + "%" : ""}</span>` : ""}</p>
+        ${m.serie.length > 1 ? sparkline(m.serie, 150, 34) : ""}
+        <p class="pc-f">${m.serie.length > 1 ? nfmt(ini) + " → " + nfmt(ult) + " kg · " : "1ª vez · "}${m.fechas.length} ${m.fechas.length > 1 ? "sesiones" : "sesión"} · ${esc(m.fechas[0])}${m.fechas.length > 1 ? " a " + esc(m.fechas[m.fechas.length - 1]) : ""}${m.inverso ? "<br>es la asistencia: menos es mejor" : ""}</p>
+      </div>`;
+    };
+    h += `<section class="rep-sec"><h2>Progresión de cargas</h2>
+      <div class="pgrid">${top.map(card).join("")}</div>
+      ${ejs.length > top.length ? `<div class="inf-q no-print">
+        <input type="search" class="search" id="inf-q" list="inf-ej" value="${esc(INFQ)}" placeholder="Buscar otro ejercicio (${ejs.length - top.length} más)…" oninput="setInfQ(this.value)">
+        <datalist id="inf-ej">${ejs.filter(m => top.indexOf(m) < 0).map(m => `<option value="${esc(m.nombre)}">`).join("")}</datalist>
+      </div>` : ""}
+      ${q ? (extra.length ? `<div class="pgrid">${extra.map(card).join("")}</div>` : `<p class="rep-note muted">Ningún otro ejercicio con carga coincide.</p>`) : ""}
+    </section>`;
   }
 
-  // --- sesión por sesión ---
-  h += `<section class="rep-sec long"><h2>Sesión por sesión</h2>`;
-  if (!sesX.length) h += `<p class="rep-note muted">Todavía no hay sesiones registradas en este período.</p>`;
-  sesX.forEach(x => {
-    if (x.extra) {
-      const e = x.extra;
-      h += `<div class="rep-ses xses">
-        <p class="rs-top"><b>${esc(e.fecha)}</b> ${esc(diaSemanaDe(e.fecha))} · Semana ${e.n} <span class="ok">🎾 ${esc(extraNombre(e).toLowerCase())}</span>
-          ${e.reemplaza ? `<br><span class="dim">En lugar de ${esc(diaPlanCorto(e.n, e.reemplaza))}</span>` : ""}</p>
-        ${extraResumenTxt(e, true) ? `<p class="rs-ev">${esc(extraResumenTxt(e, true))}</p>` : ""}
-        ${e.nota ? `<p class="rs-nota">${esc(e.nota)}</p>` : ""}
+  // --- sesión por sesión, de a una semana ---
+  const semanasCon = [];
+  for (let n = from; n <= to; n++) if (sesX.some(x => x.n === n)) semanasCon.push(n);
+  if (!semanasCon.length) {
+    h += `<section class="rep-sec"><h2>Sesión por sesión</h2><p class="rep-note muted">Todavía no hay sesiones registradas en este período.</p></section>`;
+  } else {
+    const sem = semanasCon.indexOf(INFSEM) >= 0 ? INFSEM : semanasCon[semanasCon.length - 1];
+    const chipsEv = ev => {
+      const c = [];
+      if (ev.rpe) c.push(`<span class="evc">RPE <b>${esc(ev.rpe)}</b></span>`);
+      if (ev.fatiga) c.push(`<span class="evc">Fatiga <b>${esc(ev.fatiga)}</b></span>`);
+      if (ev.dolor24 != null) c.push(`<span class="evc ${ev.dolor24 >= 7 ? "bad" : ev.dolor24 >= 4 ? "warn" : "ok"}">Rodilla 24 h <b>${esc(ev.dolor24)}</b></span>`);
+      if (ev.sueno) c.push(`<span class="evc">Sueño <b>${esc(String(ev.sueno).replace(".", ","))} h</b></span>`);
+      return c.length ? `<p class="evcs">${c.join("")}</p>` : "";
+    };
+    h += `<section class="rep-sec"><h2>Sesión por sesión</h2>
+      <div class="semchips no-print">${semanasCon.map(n => `<button class="semchip ${n === sem ? "on" : ""}" onclick="setInfSem(${n})">Sem ${n}<small>${sesX.filter(x => x.n === n).length} ses.</small></button>`).join("")}</div>
+      <p class="rep-week">Semana ${sem} · ${esc(weekRange(sem))} · ${sesionesHechas(sem)}/${routineFor(sem).dias.length} días cubiertos${extrasDe(sem).length ? " + " + extrasDe(sem).length + " pádel" : ""}</p>`;
+    sesX.filter(x => x.n === sem).forEach(x => {
+      if (x.extra) {
+        const e = x.extra;
+        h += `<div class="scard xs">
+          <p class="sc-top"><b>${esc(diaSemanaDe(e.fecha))} ${esc(e.fecha)}</b> · 🎾 ${esc(extraNombre(e))}${e.min ? " · " + e.min + " min" : ""}${e.reemplaza ? `<span class="sc-sub">en lugar de ${esc(diaPlanCorto(e.n, e.reemplaza))}</span>` : ""}</p>
+          ${chipsEv({ rpe: e.rpe, dolor24: e.dolor24 })}
+          ${e.sens ? `<p class="sc-l">Se sintió <b>${esc(e.sens.toLowerCase())}</b></p>` : ""}
+          ${e.nota ? `<p class="rs-nota">${esc(e.nota)}</p>` : ""}
+        </div>`;
+        return;
+      }
+      const r = resumenSesion(x);
+      const p = x.dia.split("·").map(t2 => t2.trim());
+      h += `<div class="scard">
+        <p class="sc-top"><b>${esc(diaSemanaDe(x.fecha))} ${esc(x.fecha)}</b> · ${esc(p[1] || p[0])}${S.dayDone[x.dk] ? ' <span class="ok">✓</span>' : ""}${p.length > 1 && p[0].toLowerCase() !== diaSemanaDe(x.fecha) ? `<span class="sc-sub">el ${esc(p[0].toLowerCase())} del plan</span>` : ""}</p>
+        ${chipsEv(x.ev)}
+        ${r.calent.total ? `<p class="sc-l"><span class="sc-k">Calentamiento</span> ${r.calent.hechos === r.calent.total ? "completo ✓" : r.calent.hechos + " de " + r.calent.total}</p>` : ""}
+        ${r.main.length ? `<ul class="sc-ex">${r.main.map(m => `<li><span>${esc(m.ex.nombre)}</span><b>${m.pesos.length ? m.pesos.map(esc).join(" · ") + " kg" : m.ex.sinPeso ? esc(m.ex.esquema || "✓") : '<i class="dim">sin peso anotado</i>'}</b></li>`).join("")}</ul>` : ""}
+        ${r.comp.length ? `<p class="sc-l"><span class="sc-k">Complementarios</span> ${r.comp.map(e => esc(e.nombre)).join(" · ")}</p>` : ""}
+        ${r.falta.length && S.dayDone[x.dk] ? `<p class="sc-l dim"><span class="sc-k">No hizo</span> ${r.falta.map(e => esc(e.nombre)).join(" · ")}</p>` : ""}
+        ${x.nota ? `<p class="rs-nota">${esc(x.nota)}</p>` : ""}
       </div>`;
-      return;
-    }
-    const ev = evalResumenTxt(x.ev);
-    h += `<div class="rep-ses">
-      <p class="rs-top"><b>${esc(x.fecha)}</b> ${esc(diaSemanaDe(x.fecha))} · Semana ${x.n}${S.dayDone[x.dk] ? ' <span class="ok">completado</span>' : ""}
-        <br><span class="dim">${esc(x.dia)}</span></p>
-      ${ev ? `<p class="rs-ev">${esc(ev)}</p>` : ""}
-      ${x.nota ? `<p class="rs-nota">${esc(x.nota)}</p>` : ""}
-      ${(() => {
-        const conP = x.regs.filter(r => r.log.peso !== "✓");
-        const sinP = x.regs.filter(r => r.log.peso === "✓");
-        let o = "";
-        if (conP.length) {
-          const porEx = [];
-          conP.forEach(r => {
-            const p = porEx.find(y => y.nombre === r.ex.nombre);
-            if (p) p.v.push(r.log.peso); else porEx.push({ nombre: r.ex.nombre, v: [r.log.peso] });
-          });
-          o += `<p class="rs-regs carga">${porEx.map(y => esc(y.nombre) + " <b>" + y.v.map(esc).join(" · ") + " kg</b>").join("<br>")}</p>`;
-        }
-        if (sinP.length) o += `<p class="rs-regs otros"><span class="dim">Sin carga (${sinP.length}):</span> ${sinP.map(r => esc(r.ex.nombre)).join(" · ")}</p>`;
-        return o;
-      })()}
-    </div>`;
-  });
-  h += `</section>`;
+    });
+    h += `</section>`;
+  }
 
   // --- cuerpo ---
   const ib = P.inbody[P.inbody.length - 1];
@@ -4163,6 +4416,7 @@ function aplicarImport(d) {
     if ((d.planV || 0) < 9) migrateV9(d);
     if ((d.planV || 0) < 10) migrateV10(d);
     if ((d.planV || 0) < 11) migrateV11(d);
+    if ((d.planV || 0) < 12) migrateV12(d);
     if ((d.planV || 0) < 6 && d.weekNotes) {
       d.dayNotes = d.dayNotes || {};
       Object.entries(d.weekNotes).forEach(([n, v]) => { if (v && String(v).trim()) d.dayNotes[n + "-0"] = String(v).trim(); });
