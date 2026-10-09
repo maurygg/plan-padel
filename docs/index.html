@@ -768,6 +768,11 @@
   .sc-ex li b { font-family: var(--mono); font-weight: 500; white-space: nowrap; }
   .sc-ex .dim { color: var(--muted); font-style: normal; font-size: 11px; }
   .pesos { border-top: 4px solid var(--green); margin-top: 4px; }
+  .aviso-bg { position: fixed; inset: 0; z-index: 60; background: rgba(30,40,34,.45); display: flex; align-items: flex-end; justify-content: center; padding: 16px; }
+  .aviso { width: 100%; max-width: 520px; max-height: 86vh; overflow: auto; background: var(--surface); border-radius: 18px; padding: 18px 16px 16px;
+    border-top: 4px solid var(--clay); box-shadow: 0 -8px 30px rgba(0,0,0,.25); margin-bottom: env(safe-area-inset-bottom); }
+  .aviso h2 { margin: 2px 0 4px; font-size: 16px; }
+  .aviso .evhead { color: var(--clay); }
   .sscheme.addpeso { border: 1px dashed var(--gold); background: var(--gold-bg); color: var(--gold); border-radius: 8px; padding: 5px 9px; cursor: pointer; font-weight: 600; }
   .pwrow { display: grid; grid-template-columns: 1fr 86px auto; align-items: center; gap: 8px; padding: 5px 0; border-top: 1px dashed var(--line-soft); font-size: 13.5px; font-weight: 600; }
   .pwrow input { width: 100%; font-family: var(--mono); font-size: 16px; padding: 8px 10px; min-height: 42px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-2); color: var(--ink); text-align: right; }
@@ -1501,7 +1506,8 @@ function freshState() {
     routines: {}, compPick: {}, weekNotes: {}, dayNotes: {}, logs: {}, evals: {},
     comments: [], bodyLog: [], openHist: {}, seq: 1, lastBackupTs: 0,
     extras: [],      // pádel u otra actividad fuera del plan (puede reemplazar un día)
-    lastPubTs: 0     // última publicación para Martín (datos.json)
+    lastPubTs: 0,    // última publicación para Martín (datos.json)
+    avisoOmit: {}    // sesiones cuyo aviso del día siguiente Mauro omitió
   };
 }
 /* Migración v1→v2: llegó el plan real de Martín. Las rutinas guardadas eran copias
@@ -2062,6 +2068,7 @@ function render() {
     </div>` : ""}
     ${STORAGE_OK ? "" : `<div class="banner-done"><p style="margin:0"><b>⚠ Este navegador no está guardando tus datos.</b> Lo que anotes se pierde al cerrar la página — abrí la app en Safari o Chrome (no en el navegador de WhatsApp) o bajá un Backup desde Progreso antes de salir.</p></div>`}
     <main>${S.tab === "plan" ? viewPlan() : S.tab === "semana" ? viewSemana() : S.tab === "progreso" ? viewProgreso() : viewPerfil()}</main>
+    ${S.tab === "semana" && !S.edit ? avisoHtml() : ""}
     <p class="footer-note">Tus registros quedan guardados en este dispositivo.<br>Desde Progreso podés descargar o mandar el resumen a Martín.</p>
   `;
   Object.entries(keep).forEach(([id, v]) => {
@@ -3470,6 +3477,80 @@ window.guardarExtra = () => {
   S.extras = (S.extras || []).filter(x => x.id !== rec.id).concat(rec);
   limpiarXInputs(); XFORM = null; save(); render();
   autoPublicar();
+};
+/* ================= AVISO DEL DÍA SIGUIENTE =================
+   Al abrir el entreno siguiente, la app pregunta por el anterior lo que solo se sabe
+   después: cómo quedó la rodilla a las 24 h y los pesos que quedaron sin anotar. Se
+   guarda en la fecha de ESA sesión. Se puede omitir y no vuelve a preguntar. */
+function diasDesde(f) {
+  const p = String(f).split("/"), d = new Date(FECHA_INICIO.getFullYear(), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  return Math.round((t - d) / 86400000);
+}
+function avisoPendiente() {
+  if (READONLY) return null;
+  const reciente = f => { const d = diasDesde(f); return d >= 1 && d <= 4; };   // de los últimos días, no de hoy
+  const cand = [];
+  sesionesPlan(1, curWeek()).forEach(x => {
+    if (!reciente(x.fecha)) return;
+    if (!S.dayDone[x.dk] && !x.regs.some(r => !r.log.auto)) return;
+    const faltan = resumenSesion(x).main.filter(m => !m.ex.sinPeso && !m.pesos.length && !esMB(m.ex)).map(m => m.ex);
+    cand.push({ key: x.dk + "@" + x.fecha, dk: x.dk, fecha: x.fecha, nombre: x.dia, sinDolor: x.ev.dolor24 == null, faltan });
+  });
+  (S.extras || []).forEach(e => {
+    if (!reciente(e.fecha)) return;
+    cand.push({ key: "x:" + e.id, extra: e, fecha: e.fecha, nombre: "🎾 " + extraNombre(e), sinDolor: e.dolor24 == null, faltan: [] });
+  });
+  cand.sort((a, b) => fechaOrd(b.fecha) - fechaOrd(a.fecha));
+  const ult = cand[0];        // solo el último entreno: lo de antes ya no se recuerda bien
+  if (!ult || (S.avisoOmit || {})[ult.key] || (!ult.sinDolor && !ult.faltan.length)) return null;
+  return ult;
+}
+let AVISOV = null;     // rodilla elegida en el aviso, antes de guardar
+function avisoHtml() {
+  const a = avisoPendiente();
+  if (!a) return "";
+  const p = a.nombre.split("·").map(t => t.trim());
+  return `<div class="aviso-bg"><div class="aviso" role="dialog" aria-label="Cómo quedaste después del último entreno">
+    <p class="evhead">Del último entreno</p>
+    <h2>${esc(diaSemanaDe(a.fecha))} ${esc(a.fecha)} · ${esc(p[1] || p[0])}</h2>
+    ${a.sinDolor ? `<p class="evlabel">¿Cómo quedó la rodilla al día siguiente? (0-10)</p>
+      <div class="chips10">${Array.from({ length: 11 }, (_, v) => `<button class="chip10 ${AVISOV === v ? "sel" : ""} ${v >= 4 ? "hi" : ""}" onclick="avisoDolor(${v})">${v}</button>`).join("")}</div>` : ""}
+    ${a.faltan.length ? `<p class="evlabel">Te faltó anotar el peso de</p>
+      ${a.faltan.map(e => `<label class="pwrow"><span>${esc(e.nombre)}</span><input type="text" id="av-${esc(e.id)}" value="${esc(pesoSugerido(e))}" placeholder="kg" inputmode="decimal"><em>kg</em></label>`).join("")}` : ""}
+    <div class="rowbtns" style="margin-top:12px">
+      <button class="btn primary" onclick="avisoGuardar()">Guardar</button>
+      <button class="btn ghost" onclick="avisoOmitir()">Omitir</button>
+    </div></div></div>`;
+}
+window.avisoDolor = v => {
+  const keep = {};
+  document.querySelectorAll(".aviso input").forEach(el => { keep[el.id] = el.value; });
+  AVISOV = AVISOV === v ? null : v; render();
+  Object.keys(keep).forEach(id => { const el = document.getElementById(id); if (el) el.value = keep[id]; });
+};
+window.avisoGuardar = () => {
+  const a = avisoPendiente();
+  if (!a) return;
+  if (AVISOV != null) {
+    if (a.extra) a.extra.dolor24 = AVISOV;
+    else { const k = a.dk + "@" + a.fecha; S.evals[k] = Object.assign(S.evals[k] || {}, { dolor24: AVISOV }); }
+  }
+  a.faltan.forEach(e => {
+    const el = document.getElementById("av-" + e.id);
+    const v = el ? el.value.trim().replace(/\s*kg$/i, "") : "";
+    if (!v) return;
+    S.logs[e.id] = (S.logs[e.id] || []).filter(l => !(l.fecha === a.fecha && l.peso === "✓"));
+    S.logs[e.id].push({ fecha: a.fecha, peso: v, esf: "", nota: "" });
+  });
+  // lo que quedó sin responder no se vuelve a preguntar
+  S.avisoOmit = S.avisoOmit || {}; S.avisoOmit[a.key] = true;
+  AVISOV = null; save(); render(); autoPublicar();
+};
+window.avisoOmitir = () => {
+  const a = avisoPendiente();
+  if (a) { S.avisoOmit = S.avisoOmit || {}; S.avisoOmit[a.key] = true; }
+  AVISOV = null; save(); render();
 };
 window.setExtraDolor = (id, v) => {
   const x = (S.extras || []).find(e => e.id === id);
